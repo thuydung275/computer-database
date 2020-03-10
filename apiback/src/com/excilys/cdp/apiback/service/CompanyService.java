@@ -19,10 +19,16 @@ public class CompanyService {
 	
 	/**
 	 * 
+	 * @param name
 	 * @return
 	 */
-	public static List<Company> getListCompanies() {
-		return companyInstance.getList();
+	public static Company findByName(String name) {
+		Optional<Company> opt = companyInstance.findByName(name);
+		if (opt.isPresent()) {
+			return opt.get();
+		}
+		return null;
+//		throw new CustomException("Company does not exist in our database", Constant.ER_NOT_FOUND);
 	}
 	
 	/**
@@ -35,7 +41,15 @@ public class CompanyService {
 		if (opt.isPresent()) {
 			return opt.get();
 		}
-		throw new CustomException("Computer does not exist in our database", Constant.ER_NOT_FOUND);
+		return null;
+//		throw new CustomException("Company does not exist in our database", Constant.ER_NOT_FOUND);
 	}
-
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static List<Company> getListCompanies() {
+		return companyInstance.getList();
+	}
 }

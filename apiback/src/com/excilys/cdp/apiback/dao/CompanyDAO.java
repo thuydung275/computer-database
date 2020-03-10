@@ -20,10 +20,11 @@ import com.excilys.cdp.apiback.service.Pagination;
  */
 public class CompanyDAO{
 	
-	private static Connection connection = MySqlConnection.getInstance().getConnection();
-	private static CompanyDAO INSTANCE = null;
+	private static Connection connection = MySqlConnection.getInstance();
+	private static CompanyDAO companyDAO = null;
 	
 	private static final String FIND_BY_ID = "SELECT company.id, company.name FROM company WHERE company.id = ?";
+	private static final String FIND_BY_NAME = "SELECT company.id, company.name FROM company WHERE company.name LIKE ?";
 	private static final String FIND_ALL = "SELECT company.id, company.name FROM company";
 	private static final String CREATE_COMPANY = "INSERT INTO company (name) VALUES (?)";
 	private static final String UPDATE_COMPANY = "UPDATE company SET name = ? WHERE id = ? ";
@@ -32,10 +33,10 @@ public class CompanyDAO{
 	private CompanyDAO() {}
 	
 	public static synchronized CompanyDAO getInstance() {
-        if ( INSTANCE == null ) {
-        	INSTANCE = new CompanyDAO();
+        if (companyDAO == null) {
+        	companyDAO = new CompanyDAO();
         }
-        return INSTANCE;
+        return companyDAO;
     }
 	
 	/**
@@ -45,18 +46,48 @@ public class CompanyDAO{
 	 */
 	public Optional<Company> findById(int id) {
 		Company company = null;
-		
+		PreparedStatement preparedStatement = null;
+		ResultSet result = null;
 		try {
-			PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID);
+			preparedStatement = connection.prepareStatement(FIND_BY_ID);
 			preparedStatement.setInt(1, id);
-			ResultSet result = preparedStatement.executeQuery();
+			result = preparedStatement.executeQuery();
 			while(result.next()) {
 				company = this.setObject(result);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} 
+		} finally {
+			MySqlConnection.closeSqlResources(preparedStatement, result);
+        }
+		
+		Optional<Company> opt = Optional.ofNullable(company); 
+		return opt;
+	}
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public Optional<Company> findByName(String name) {
+		Company company = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet result = null;
+		try {
+			preparedStatement = connection.prepareStatement(FIND_BY_NAME);
+			preparedStatement.setString(1, name);
+			result = preparedStatement.executeQuery();
+			while(result.next()) {
+				company = this.setObject(result);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			MySqlConnection.closeSqlResources(preparedStatement, result);
+        }
 		
 		Optional<Company> opt = Optional.ofNullable(company); 
 		return opt;
@@ -67,18 +98,22 @@ public class CompanyDAO{
 	 * @return
 	 */
 	public List<Company> getList() {
+		PreparedStatement preparedStatement = null;
+		ResultSet result = null;
 		List<Company> companyList = new ArrayList<>();
 
 		try {
-			PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL);
-			ResultSet result = preparedStatement.executeQuery();
+			preparedStatement = connection.prepareStatement(FIND_ALL);
+			result = preparedStatement.executeQuery();
 			while(result.next()) {
 				companyList.add(this.setObject(result));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} 
+		} finally {
+			MySqlConnection.closeSqlResources(preparedStatement, result);
+        }
 		
 		return companyList;
 	}
@@ -89,19 +124,23 @@ public class CompanyDAO{
 	 * @return
 	 */
 	public List<Company> getListPerPage(Pagination page) {
+		PreparedStatement preparedStatement = null;
+		ResultSet result = null;
 		List<Company> companyList = new ArrayList<>();
 		String withLimit = " LIMIT " + page.getLimit() * (page.getPage() - 1) + "," + page.getLimit();
 		
 		try {
-			PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL + withLimit);
-			ResultSet result = preparedStatement.executeQuery();
+			preparedStatement = connection.prepareStatement(FIND_ALL + withLimit);
+			result = preparedStatement.executeQuery();
 			while(result.next()) {
 				companyList.add(this.setObject(result));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} 
+		} finally {
+			MySqlConnection.closeSqlResources(preparedStatement, result);
+        }
 		return companyList;
 	}
 
@@ -111,16 +150,21 @@ public class CompanyDAO{
 	 * @return
 	 */
 	public Company create(Company company) {
-		try(PreparedStatement preparedStatement = connection.prepareStatement(CREATE_COMPANY)) {
+		PreparedStatement preparedStatement = null;
+		ResultSet result = null;
+		try {
+			preparedStatement = connection.prepareStatement(CREATE_COMPANY);
 			preparedStatement.setString(1, company.getName());
 			preparedStatement.executeUpdate();
-			ResultSet result = preparedStatement.getGeneratedKeys();
+			result = preparedStatement.getGeneratedKeys();
 			int lastInsertedId = result.next() ? result.getInt(1) : null;
 			company.setId(lastInsertedId);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} 
+		} finally {
+			MySqlConnection.closeSqlResources(preparedStatement, result);
+        }
 		return company;
 	}
 	
@@ -130,15 +174,18 @@ public class CompanyDAO{
 	 * @return
 	 */
 	public Company update(Company company) {
+		PreparedStatement preparedStatement = null;
 		try {
-			PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_COMPANY);
+			preparedStatement = connection.prepareStatement(UPDATE_COMPANY);
 			preparedStatement.setString(1, company.getName());
 			preparedStatement.setInt(2, company.getId());
 			preparedStatement.executeUpdate();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} 
+		} finally {
+			MySqlConnection.closeSqlResources(preparedStatement);
+        }
 		return company;
 	}
 	
@@ -149,16 +196,18 @@ public class CompanyDAO{
 	 */
 	public boolean delete(int companyId) {
 		boolean deleted = false;
-		
+		PreparedStatement preparedStatement = null;
 		try {
-			PreparedStatement preparedStatement = connection.prepareStatement(DELETE_COMPANY);
+			preparedStatement = connection.prepareStatement(DELETE_COMPANY);
 			preparedStatement.setInt(1, companyId);
 			preparedStatement.executeUpdate();
 			deleted = true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} 
+		} finally {
+			MySqlConnection.closeSqlResources(preparedStatement);
+        }
 		
 		return deleted;
 	}
