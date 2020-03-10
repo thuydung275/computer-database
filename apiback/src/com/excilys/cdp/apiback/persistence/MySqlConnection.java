@@ -1,22 +1,21 @@
 package com.excilys.cdp.apiback.persistence;
 
-import com.excilys.cdp.apiback.constant.Constant;
 import java.sql.*;
 
-public class MySqlConnection implements AutoCloseable {
+import com.excilys.cdp.apiback.helper.Constant;
+
+public class MySqlConnection {
 	
 	/**
 	 * Single instance not pre-initialized
 	 */
     private static MySqlConnection INSTANCE = null;
     private Connection connection;    
-    private static int counter = 0;
     
     /**
      * Private constructor
      */
     private MySqlConnection() {
-    	counter++; 	
         try {
         	// instantiation du driver JDBC
             Class.forName(Constant.DRIVER);
@@ -36,16 +35,10 @@ public class MySqlConnection implements AutoCloseable {
         if ( INSTANCE == null ) {
         	INSTANCE = new MySqlConnection();
         }
-        System.out.println("instance number : " + counter);
         return INSTANCE;
     }
     
     public Connection getConnection() {
     	return this.connection;
     }
-
-	@Override
-	public void close() throws Exception {
-		connection.close();
-	}
 }

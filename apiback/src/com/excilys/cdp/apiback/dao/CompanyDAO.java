@@ -13,59 +13,90 @@ import com.excilys.cdp.apiback.model.Company.CompanyBuilder;
 import com.excilys.cdp.apiback.persistence.MySqlConnection;
 import com.excilys.cdp.apiback.service.Pagination;
 
+/**
+ * 
+ * @author thuydung
+ *
+ */
 public class CompanyDAO{
 	
-	private CompanyDAO () {}
-	
 	private static Connection connection = MySqlConnection.getInstance().getConnection();
+	private static CompanyDAO INSTANCE = null;
 	
-	private static final String FIND_BY_ID = "SELECT compa.id, compa.name FROM company compa com WHERE compa.id = ?";
-	private static final String FIND_ALL = "SELECT compa.id, compa.name FROM company compa";
+	private static final String FIND_BY_ID = "SELECT company.id, company.name FROM company WHERE company.id = ?";
+	private static final String FIND_ALL = "SELECT company.id, company.name FROM company";
 	private static final String CREATE_COMPANY = "INSERT INTO company (name) VALUES (?)";
 	private static final String UPDATE_COMPANY = "UPDATE company SET name = ? WHERE id = ? ";
 	private static final String DELETE_COMPANY = "DELETE company WHERE id = ?";
 	
-	public static Optional<Company> findById(int id) {
+	private CompanyDAO() {}
+	
+	public static synchronized CompanyDAO getInstance() {
+        if ( INSTANCE == null ) {
+        	INSTANCE = new CompanyDAO();
+        }
+        return INSTANCE;
+    }
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public Optional<Company> findById(int id) {
 		Company company = null;
-		ResultSet result;
-		try (PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID)) {
+		
+		try {
+			PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID);
 			preparedStatement.setInt(1, id);
-			result = preparedStatement.executeQuery();
+			ResultSet result = preparedStatement.executeQuery();
 			while(result.next()) {
-				company = CompanyDAO.setObject(result);
+				company = this.setObject(result);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
+		
 		Optional<Company> opt = Optional.ofNullable(company); 
 		return opt;
 	}
 	
-	public static List<Company> getList() {
+	/**
+	 * 
+	 * @return
+	 */
+	public List<Company> getList() {
 		List<Company> companyList = new ArrayList<>();
-		ResultSet result;
-		try (PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL)){
-			result = preparedStatement.executeQuery();
+
+		try {
+			PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL);
+			ResultSet result = preparedStatement.executeQuery();
 			while(result.next()) {
-				companyList.add(CompanyDAO.setObject(result));
+				companyList.add(this.setObject(result));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
+		
 		return companyList;
 	}
 	
-	public static List<Company> getListPerPage(Pagination page) {
+	/**
+	 * 
+	 * @param page
+	 * @return
+	 */
+	public List<Company> getListPerPage(Pagination page) {
 		List<Company> companyList = new ArrayList<>();
-		ResultSet result;
 		String withLimit = " LIMIT " + page.getLimit() * (page.getPage() - 1) + "," + page.getLimit();
 		
-		try (PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL + withLimit)) {
-			result = preparedStatement.executeQuery();
+		try {
+			PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL + withLimit);
+			ResultSet result = preparedStatement.executeQuery();
 			while(result.next()) {
-				companyList.add(CompanyDAO.setObject(result));
+				companyList.add(this.setObject(result));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -74,16 +105,18 @@ public class CompanyDAO{
 		return companyList;
 	}
 
-	public static Company create(Company company) {
-		ResultSet result;
+	/**
+	 * 
+	 * @param company
+	 * @return
+	 */
+	public Company create(Company company) {
 		try(PreparedStatement preparedStatement = connection.prepareStatement(CREATE_COMPANY)) {
 			preparedStatement.setString(1, company.getName());
 			preparedStatement.executeUpdate();
-			result = preparedStatement.getGeneratedKeys();
-			if (result.next()) {
-				company.setId(result.getInt(1));
-			}
-			System.out.println(company.toString());
+			ResultSet result = preparedStatement.getGeneratedKeys();
+			int lastInsertedId = result.next() ? result.getInt(1) : null;
+			company.setId(lastInsertedId);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -91,8 +124,14 @@ public class CompanyDAO{
 		return company;
 	}
 	
-	public static Company update(Company company) {
-		try(PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_COMPANY)) {
+	/**
+	 * 
+	 * @param company
+	 * @return
+	 */
+	public Company update(Company company) {
+		try {
+			PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_COMPANY);
 			preparedStatement.setString(1, company.getName());
 			preparedStatement.setInt(2, company.getId());
 			preparedStatement.executeUpdate();
@@ -103,10 +142,16 @@ public class CompanyDAO{
 		return company;
 	}
 	
-	public static boolean delete(int companyId) {
+	/**
+	 * 
+	 * @param companyId
+	 * @return
+	 */
+	public boolean delete(int companyId) {
 		boolean deleted = false;
 		
-		try(PreparedStatement preparedStatement = connection.prepareStatement(DELETE_COMPANY)) {
+		try {
+			PreparedStatement preparedStatement = connection.prepareStatement(DELETE_COMPANY);
 			preparedStatement.setInt(1, companyId);
 			preparedStatement.executeUpdate();
 			deleted = true;
@@ -118,13 +163,19 @@ public class CompanyDAO{
 		return deleted;
 	}
 	
-	private static Company setObject(ResultSet result) throws SQLException {
+	/**
+	 * 
+	 * @param result
+	 * @return
+	 * @throws SQLException
+	 */
+	private Company setObject(ResultSet result) throws SQLException {
 		CompanyBuilder builder = new Company.CompanyBuilder();
 
-		builder.setId(result.getInt("compa.id"));
+		builder.setId(result.getInt("company.id"));
 		
-		if (result.getString("compa.name") != null) {
-			builder.setName(result.getString("compa.name"));
+		if (result.getString("company.name") != null) {
+			builder.setName(result.getString("company.name"));
 		}
 		
 		Company Company = builder.build();

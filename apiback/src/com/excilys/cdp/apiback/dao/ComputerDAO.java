@@ -11,32 +11,51 @@ import java.util.List;
 import java.util.Optional;
 
 import com.excilys.cdp.apiback.model.Company;
+import com.excilys.cdp.apiback.model.Company.CompanyBuilder;
 import com.excilys.cdp.apiback.model.Computer;
 import com.excilys.cdp.apiback.model.Computer.ComputerBuilder;
 import com.excilys.cdp.apiback.persistence.MySqlConnection;
 import com.excilys.cdp.apiback.service.Pagination;
 
+/**
+ * 
+ * @author thuydung
+ *
+ */
 public class ComputerDAO {
+	
+	private static Connection connection = MySqlConnection.getInstance().getConnection();
+	private static ComputerDAO INSTANCE = null;
+	
+	private static final String FIND_BY_ID = "SELECT computer.id, computer.name, computer.introduced, computer.discontinued, computer.company_id, company.name FROM computer LEFT JOIN company ON computer.company_id = company.id WHERE computer.id = ?";
+	private static final String FIND_ALL = "SELECT computer.id, computer.name, computer.introduced, computer.discontinued, computer.company_id, company.name FROM computer LEFT JOIN company ON computer.company_id = company.id ";
+	private static final String CREATE_COMPUTER = "INSERT INTO computer (name, introduced, discontinued, company_id) VALUES (?,?,?,?)";
+	private static final String UPDATE_COMPUTER = "UPDATE computer SET name = ?, introduced = ?, discontinued = ?, company_id = ? WHERE id = ? ";
+	private static final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?";
 	
 	private ComputerDAO() {}
 	
-	private static Connection connection = MySqlConnection.getInstance().getConnection();
+	public static synchronized ComputerDAO getInstance() {
+        if ( INSTANCE == null ) {
+        	INSTANCE = new ComputerDAO();
+        }
+        return INSTANCE;
+    }
 	
-	private static final String FIND_BY_ID = "SELECT com.id, com.name, com.introduced, com.discontinued, com.company_id FROM computer com WHERE com.id = ?";
-	private static final String FIND_ALL = "SELECT com.id, com.name, com.introduced, com.discontinued, com.company_id FROM computer com";
-	private static final String CREATE_COMPUTER = "INSERT INTO computer (name, introduced, discontinued, company_id) VALUES (?,?,?,?)";
-	private static final String UPDATE_COMPUTER = "UPDATE computer SET name = ?, introduce = ?, discontinued = ?, company_id = ? WHERE id = ? ";
-	private static final String DELETE_COMPUTER = "DELETE computer WHERE id = ?";
-	
-	public static Optional<Computer> findById(int id) {
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public Optional<Computer> findById(int id) {
 		Computer computer = null;
-		ResultSet result;
 		
-		try (PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID)) {
+		try {
+			PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID);
 			preparedStatement.setInt(1, id);
-			result = preparedStatement.executeQuery();
+			ResultSet result = preparedStatement.executeQuery();
 			while(result.next()) {
-				computer = ComputerDAO.setObject(result);
+				computer = this.setObject(result);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -46,13 +65,18 @@ public class ComputerDAO {
 		return opt;
 	}
 	
-	public static List<Computer> getList() {	
+	/**
+	 * 
+	 * @return
+	 */
+	public List<Computer> getList() {	
 		List<Computer> computerList = new ArrayList<>();
-		ResultSet result;
-		try (PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL)){
-			result = preparedStatement.executeQuery();
+
+		try {
+			PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL);
+			ResultSet result = preparedStatement.executeQuery();
 			while(result.next()) {
-				computerList.add(ComputerDAO.setObject(result));
+				computerList.add(this.setObject(result));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -61,15 +85,20 @@ public class ComputerDAO {
 		return computerList;
 	}
 	
-	public static List<Computer> getListPerPage(Pagination page) {	
+	/**
+	 * 
+	 * @param page
+	 * @return
+	 */
+	public List<Computer> getListPerPage(Pagination page) {	
 		List<Computer> computerList = new ArrayList<>();
-		ResultSet result;
 		String withLimit = " LIMIT " + page.getLimit() * (page.getPage() - 1) + "," + page.getLimit();
 		
-		try (PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL + withLimit)) {
-			result = preparedStatement.executeQuery();
+		try {
+			PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL + withLimit);
+			ResultSet result = preparedStatement.executeQuery();
 			while(result.next()) {
-				computerList.add(ComputerDAO.setObject(result));
+				computerList.add(this.setObject(result));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -78,24 +107,41 @@ public class ComputerDAO {
 		return computerList;
 	}
 
-	public static Computer create(Computer computer) {
-		ResultSet result;
-		int i = 1;
-		try (PreparedStatement preparedStatement = connection.prepareStatement(CREATE_COMPUTER)) {
+	/**
+	 * 
+	 * @param computer
+	 * @return
+	 */
+	public Computer create(Computer computer) {
+		
+		try {
+			PreparedStatement preparedStatement = connection.prepareStatement(CREATE_COMPUTER);
+			int i = 1;
 			preparedStatement.setString(i++, computer.getName());
-			preparedStatement.setDate(i++, java.sql.Date.valueOf(computer.getIntroduced()));
-			preparedStatement.setDate(i++, java.sql.Date.valueOf(computer.getDiscontinued()));
+			
+			if (computer.getIntroduced() != null) {
+				preparedStatement.setDate(i++, java.sql.Date.valueOf(computer.getIntroduced()));
+			} else {
+				preparedStatement.setNull(i++, 0);
+			}
+			
+			if (computer.getDiscontinued() != null) {
+				preparedStatement.setDate(i++, java.sql.Date.valueOf(computer.getDiscontinued()));
+			} else {
+				preparedStatement.setNull(i++, 0);
+			}
 			
 			if (computer.getCompany() != null) {
 				preparedStatement.setInt(i++, computer.getCompany().getId());
+			} else {
+				preparedStatement.setNull(i++, 0);
 			}
 			
 			preparedStatement.executeUpdate();
-			result = preparedStatement.getGeneratedKeys();
-			if (result.next()) {
-				computer.setId(result.getInt(1));
-			}
-			System.out.println(computer.toString());
+			ResultSet result = preparedStatement.getGeneratedKeys();
+			
+			int lastInsertedId = result.next() ? result.getInt(1) : null;
+			computer.setId(lastInsertedId);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -103,17 +149,35 @@ public class ComputerDAO {
 		return computer;
 	}
 	
-	public static Computer update(Computer computer) {
-		int i = 1;
-		try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_COMPUTER)) {
+	/**
+	 * 
+	 * @param computer
+	 * @return
+	 */
+	public Computer update(Computer computer) {
+		try {
+			PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_COMPUTER);
+			int i = 1;
 			preparedStatement.setString(i++, computer.getName());
-			preparedStatement.setDate(i++, java.sql.Date.valueOf(computer.getIntroduced()));
-			preparedStatement.setDate(i++, java.sql.Date.valueOf(computer.getDiscontinued()));
+			
+			if (computer.getIntroduced() != null) {
+				preparedStatement.setDate(i++, java.sql.Date.valueOf(computer.getIntroduced()));
+			} else {
+				preparedStatement.setNull(i++, 0);
+			}
+			
+			if (computer.getDiscontinued() != null) {
+				preparedStatement.setDate(i++, java.sql.Date.valueOf(computer.getDiscontinued()));
+			} else {
+				preparedStatement.setNull(i++, 0);
+			}
 			
 			if (computer.getCompany() != null) {
 				preparedStatement.setInt(i++, computer.getCompany().getId());
+			} else {
+				preparedStatement.setNull(i++, 0);
 			}
-			
+			preparedStatement.setInt(i++, computer.getId());
 			preparedStatement.executeUpdate();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -122,9 +186,15 @@ public class ComputerDAO {
 		return computer;
 	}
 	
+	/**
+	 * 
+	 * @param computerId
+	 * @return
+	 */
 	public boolean delete(int computerId) {
 		boolean deleted = false;
-		try (PreparedStatement preparedStatement = connection.prepareStatement(DELETE_COMPUTER)) {
+		try {
+			PreparedStatement preparedStatement = connection.prepareStatement(DELETE_COMPUTER);
 			preparedStatement.setInt(1, computerId);
 			preparedStatement.executeUpdate();
 		} catch (SQLException e) {
@@ -134,26 +204,36 @@ public class ComputerDAO {
 		return deleted;
 	}
 	
-	private static Computer setObject(ResultSet result) throws SQLException {
+	/**
+	 * 
+	 * @param result
+	 * @return
+	 * @throws SQLException
+	 */
+	private Computer setObject(ResultSet result) throws SQLException {
 		ComputerBuilder builder = new Computer.ComputerBuilder();
 
-		builder.setId(result.getInt("com.id"));
+		builder.setId(result.getInt("computer.id"));
 		
-		if (result.getString("com.name") != null) {
-			builder.setName(result.getString("com.name"));
+		if (result.getString("computer.name") != null) {
+			builder.setName(result.getString("computer.name"));
 		}
 
-		if (result.getDate("com.introduced") != null) {
-			builder.setIntroduced(result.getDate("com.introduced").toLocalDate());
+		if (result.getDate("computer.introduced") != null) {
+			builder.setIntroduced(result.getDate("computer.introduced").toLocalDate());
 		}
 		
-		if (result.getDate("com.discontinued") != null) {
-			builder.setDiscontinued(result.getDate("com.discontinued").toLocalDate());
+		if (result.getDate("computer.discontinued") != null) {
+			builder.setDiscontinued(result.getDate("computer.discontinued").toLocalDate());
 		}
 		
-		if (result.getInt("com.company_id") != 0) {
-//			Company company = new Company.CompanyBuilder().setId(result.getInt("com.company_id")).build();
-			Company company = CompanyDAO.findById(result.getInt("com.company_id")).get();
+		// hydrate Company
+		if (result.getInt("computer.company_id") != 0) {
+			CompanyBuilder companyBuilder = new Company.CompanyBuilder().setId(result.getInt("computer.company_id"));
+			if (result.getString("company.name") != null) {
+				companyBuilder.setName(result.getString("company.name"));
+			}
+			Company company = companyBuilder.build();
 			builder.setCompany(company);
 		}
 		
