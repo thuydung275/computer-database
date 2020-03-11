@@ -52,4 +52,13 @@ public class CompanyService {
 	public static List<Company> getListCompanies() {
 		return companyInstance.getList();
 	}
+	
+	/**
+	 * 
+	 * @param page
+	 * @return
+	 */
+	public static List<Company> getListPerPage(Pagination page) {
+		return companyInstance.getListPerPage(page);
+	}
 }

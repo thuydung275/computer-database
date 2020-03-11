@@ -1,5 +1,9 @@
 package com.excilys.cdp.apiback.service;
 
+import java.util.List;
+
+import com.excilys.cdp.apiback.model.Computer;
+
 public class Pagination {
 	
 	private int limit;

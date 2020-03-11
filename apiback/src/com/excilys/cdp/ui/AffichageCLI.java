@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.excilys.cdp.apiback.model.*;
 import com.excilys.cdp.apiback.model.Computer.ComputerBuilder;
 import com.excilys.cdp.apiback.service.*;
@@ -13,8 +16,12 @@ import com.excilys.cdp.apiback.service.*;
 public class AffichageCLI {
 	
 	private static Scanner scanner = new Scanner(System.in);
+	
+	private static Logger logger = LoggerFactory.getLogger(AffichageCLI.class);
 
-	public static void start()  {
+	public static void start()  {		
+	    logger.info("TestCLI");
+
 
 		boolean continuer = true;
 		
@@ -22,19 +29,14 @@ public class AffichageCLI {
 			printWelcomeBoard();
 			printMenu();
 			
-			int choice = getChoice();
-			
+			Action choice = getChoice();
+
 			switch(choice) {
-			case 1: 
-				System.out.println("case 1");
-				List<Computer> computerList = ComputerService.getListComputers();
-				if (!computerList.isEmpty()) {
-					for (Computer computer: computerList) {
-						System.out.println(computer.toString());
-					}
-				}
+			case LIST_COMPUTER: 
+				printComputerListPerPage();
+
 				break;
-			case 2: 
+			case LIST_COMPANIES: 
 				System.out.println("case 2");
 				List<Company> companyList = CompanyService.getListCompanies();
 				if (!companyList.isEmpty()) {
@@ -42,26 +44,30 @@ public class AffichageCLI {
 						System.out.println(company.toString());
 					}
 				}
+				printCompanyListPerPage();
 				break;
-			case 3: 
-				System.out.println("case 3");
+			case SHOW_COMPUTER: 
 				int id = getComputerId();
 				Computer computer = ComputerService.showDetail(id);
 				System.out.println(computer.toString());
 				break;
-			case 4: 
+			case CREATE_COMPUTER: 
 				Computer inputComputer = getComputerInput();
 				System.out.println(inputComputer);
 				System.out.println("case 4");
 				break;
-			case 5: 
+			case UPDATE_COMPUTER: 
 				System.out.println("case 5");
 				break;
-			case 6: 
-				System.out.println("case 6");
+			case DELETE_COMPUTER: 
+				int id1 = getComputerId();
+				Computer computerToRemove = ComputerService.showDetail(id1);
+				boolean deleted = ComputerService.remove(computerToRemove);
+				System.out.println("computer is removed" + deleted);
 				break;
-			case 7: 
+			case QUIT: 
 				System.out.println("case 7");
+				printGoodByeMessage();
 				continuer = false;
 				break;
 			default: 
@@ -70,62 +76,6 @@ public class AffichageCLI {
 			}
 			
 		}
-		
-		
-//		// list computers
-//		List<Computer> computerList = ComputerService.getListComputers();
-//		
-//		if (computerList != null && !computerList.isEmpty()) {
-//			for (Computer com : computerList) {
-//				System.out.println(com.toString());
-//			}
-//		}
-//		
-//		// list companies
-//		List<Company> companyList = CompanyService.getListCompanies();
-//		if (companyList != null && !companyList.isEmpty()) {
-//			for (Company com : companyList) {
-//				System.out.println(com.toString());
-//			}
-//		}
-		
-		// show computer details
-//		Computer computer = ComputerService.showDetail(1);
-//		System.out.println(computer.toString());
-//		if (computer.getCompany() != null) {
-//			System.out.println(computer.getCompany().toString());
-//		}
-
-
-		Company companyToInsert = CompanyService.showDetail(1);
-		if (companyToInsert != null) {
-//			Computer computer1 = new Computer.ComputerBuilder()
-//					.setCompany(companyToInsert)
-//					.setName("Mon nouveau Super PC")
-//					.setIntroduced(LocalDate.now().withDayOfYear(1))
-//					.setDiscontinued(LocalDate.now())
-//					.build();
-//			Computer newComputer = ComputerService.create(computer1);
-//			System.out.println(newComputer.toString());
-			
-//			Computer computerToEdit = ComputerService.showDetail(576);
-//			computerToEdit.setCompany(CompanyService.showDetail(1));
-//			Computer editedComputer = ComputerService.update(computerToEdit);
-//			System.out.println(editedComputer.toString());
-		}
-		
-//		ComputerService.remove(ComputerService.showDetail(577));
-		
-		// getListPerPage
-//		Pagination page = new Pagination(2);
-//		List<Computer> computerListPerPage = computerDAO.getListPerPage(page);
-//		
-//		if (computerListPerPage != null && !computerListPerPage.isEmpty()) {
-//			for (Computer com : computerListPerPage) {
-//				System.out.println(com.toString());
-//			}
-//		}
-		
 	}
 	
 	private static void printWelcomeBoard() {
@@ -162,28 +112,19 @@ public class AffichageCLI {
 				"                        `--'           `--'");
 	}
 	
-	private static int getChoice() {
-		String answer = scanner.next();
-		scanner.nextLine();
-		
-		if (answer.length() != 1) {
+	private static Action getChoice() {
+		int answer = scanner.nextInt();
+		if (answer < 1 || answer > 7) {
 			printMenu();
 			getChoice();
 		}
-		
-		int choice =  Integer.parseInt(answer);
-		if (choice < 1 || choice > 7) {
-			printMenu();
-			getChoice();
-		}
+		Action choice = Action.getAction(answer);
 		return choice;
 	}
 	
 	private static int getComputerId() {
 		System.out.println("Computer id: \n");
-		String answer = scanner.next();
-		scanner.nextLine();
-		return Integer.parseInt(answer);
+		return scanner.nextInt();
 	}
 	
 	private static Computer getComputerInput() {
@@ -226,6 +167,71 @@ public class AffichageCLI {
 
 		Computer newComputer = builder.build();
 		return newComputer;
+	}
+	
+	private static void printComputerListPerPage() {
+		List<Computer> computerList = ComputerService.getListComputers();
+		if (computerList.isEmpty()) {
+			System.out.println("No computer found in our database");
+		}
+		
+		Pagination page = new Pagination();
+		int totalComputers = computerList.size();
+		String direction = null;
+		do {
+			List<Computer> computerTrunkList = ComputerService.getListComputerPerPage(page);
+			
+			for (Computer computer: computerTrunkList) {
+				System.out.println(computer.toString());
+			}
+			
+			direction = setPage(page, totalComputers);
+		} while(!direction.equals("q"));
+		
+		printMenu();
+	}
+	
+	private static void printCompanyListPerPage() {
+		List<Company> companyList = CompanyService.getListCompanies();
+		if (companyList.isEmpty()) {
+			System.out.println("No company found in our database");
+		}
+		
+		Pagination page = new Pagination();
+		int totalCompanies = companyList.size();
+		String direction = null;
+		do {
+			List<Company> companyTrunkList = CompanyService.getListPerPage(page);
+			
+			for (Company company: companyTrunkList) {
+				System.out.println(company.toString());
+			}
+			
+			direction = setPage(page, totalCompanies);
+		} while(!direction.equals("q"));
+		
+		printMenu();
+	}
+	
+	private static String setPage(Pagination page, int total) {
+		System.out.println("Page " + page.getPage() + "/" + page.getTotalPage(total));
+		String guide = "please type 'q' to quit, ";
+		if (page.getPage() > 1) {
+			guide += " 's' for the previous page, ";
+		} else if (page.getPage() < page.getTotalPage(total)) {
+			guide += " 'f' for the next page, ";
+		}
+		System.out.println(guide + "\n");
+		String direction = scanner.next();
+		int newPage;
+		if (direction.toLowerCase().equals("s") && page.getPage() > 1) {
+			page.setPage(page.getPage() - 1);
+		}
+		if (direction.toLowerCase().equals("f") && page.getPage() < page.getTotalPage(total)) {
+			page.setPage(page.getPage() + 1);
+		}
+		
+		return direction;
 	}
 
 }

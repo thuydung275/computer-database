@@ -29,6 +29,15 @@ public class ComputerService {
 	
 	/**
 	 * 
+	 * @param page
+	 * @return
+	 */
+	public static List<Computer> getListComputerPerPage(Pagination page) {
+		return computerInstance.getListPerPage(page);
+	}
+	
+	/**
+	 * 
 	 * @param id
 	 * @return
 	 */
