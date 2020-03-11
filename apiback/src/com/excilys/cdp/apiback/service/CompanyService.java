@@ -28,7 +28,6 @@ public class CompanyService {
 			return opt.get();
 		}
 		return null;
-//		throw new CustomException("Company does not exist in our database", Constant.ER_NOT_FOUND);
 	}
 	
 	/**
@@ -42,7 +41,6 @@ public class CompanyService {
 			return opt.get();
 		}
 		return null;
-//		throw new CustomException("Company does not exist in our database", Constant.ER_NOT_FOUND);
 	}
 	
 	/**

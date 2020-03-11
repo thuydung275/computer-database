@@ -1,14 +1,13 @@
 package com.excilys.cdp.ui;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 import java.util.Scanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.excilys.cdp.apiback.helper.DateHelper;
 import com.excilys.cdp.apiback.model.*;
 import com.excilys.cdp.apiback.model.Computer.ComputerBuilder;
 import com.excilys.cdp.apiback.service.*;
@@ -34,39 +33,23 @@ public class AffichageCLI {
 			switch(choice) {
 			case LIST_COMPUTER: 
 				printComputerListPerPage();
-
 				break;
 			case LIST_COMPANIES: 
-				System.out.println("case 2");
-				List<Company> companyList = CompanyService.getListCompanies();
-				if (!companyList.isEmpty()) {
-					for (Company company: companyList) {
-						System.out.println(company.toString());
-					}
-				}
 				printCompanyListPerPage();
 				break;
 			case SHOW_COMPUTER: 
-				int id = getComputerId();
-				Computer computer = ComputerService.showDetail(id);
-				System.out.println(computer.toString());
+				showComputerDetails();
 				break;
 			case CREATE_COMPUTER: 
-				Computer inputComputer = getComputerInput();
-				System.out.println(inputComputer);
-				System.out.println("case 4");
+				createComputer();
 				break;
 			case UPDATE_COMPUTER: 
-				System.out.println("case 5");
+				updateComputer();
 				break;
 			case DELETE_COMPUTER: 
-				int id1 = getComputerId();
-				Computer computerToRemove = ComputerService.showDetail(id1);
-				boolean deleted = ComputerService.remove(computerToRemove);
-				System.out.println("computer is removed" + deleted);
+				removeComputer();
 				break;
 			case QUIT: 
-				System.out.println("case 7");
 				printGoodByeMessage();
 				continuer = false;
 				break;
@@ -128,39 +111,25 @@ public class AffichageCLI {
 	}
 	
 	private static Computer getComputerInput() {
-		ComputerBuilder builder = new Computer.ComputerBuilder();
+		ComputerBuilder builder = new Computer.ComputerBuilder();  
 		
-		System.out.println("Computer name: \n");
-		String computerName = scanner.nextLine();
+		System.out.print("Computer name: \n");
+		String computerName = scanner.useDelimiter("\n").next();
 		builder.setName(computerName);
 		
-		System.out.println("Computer introduced date(dd/mm/yyyy): \n");
-		String computerIntroducedDate = scanner.nextLine();
-		if (computerIntroducedDate.length() == 10) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-			formatter = formatter.withLocale(Locale.FRANCE);
-			LocalDate date = LocalDate.parse(computerIntroducedDate, formatter);
-			builder.setIntroduced(date);
-		} 
+		System.out.print("Computer introduced date(dd/mm/yyyy): \n");
+		LocalDate introducedDate = getDate();
+		if (introducedDate != null) {
+			builder.setIntroduced(introducedDate);
+		}
 		
 		System.out.println("Computer discontinued date(dd/mm/yyyy): \n");
-		String computerDiscontinuedDate = scanner.nextLine();
-		if (computerDiscontinuedDate.length() == 10) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-			formatter = formatter.withLocale(Locale.FRANCE);
-			LocalDate date = LocalDate.parse(computerDiscontinuedDate, formatter);
-			builder.setDiscontinued(date);
-		} 
-		
-		System.out.println("Select a company from the list below: \n");
-		List<Company> companyList = CompanyService.getListCompanies();
-		for (Company company : companyList) {
-			System.out.println(company.getName());
+		LocalDate discontinuedDate = getDate();
+		if (discontinuedDate != null) {
+			builder.setDiscontinued(discontinuedDate);
 		}
-		String companyName = scanner.nextLine();
-		System.out.println(companyName);
-		Company company = CompanyService.findByName(companyName);
-		System.out.println(company.toString());
+		
+		Company company = getSelectedCompany();
 		if (company != null) {
 			builder.setCompany(company);
 		}
@@ -233,5 +202,59 @@ public class AffichageCLI {
 		
 		return direction;
 	}
+	
+	private static LocalDate getDate() {
+		String computerIntroducedDate = scanner.next();
+		if (computerIntroducedDate.length() == 10) {
+			LocalDate date = DateHelper.toLocaleDate(computerIntroducedDate);
+			return date;
+		} 
+		return null;
+	}
+	
+	private static Company getSelectedCompany() {
+		System.out.print("Select a company from the list below: \n");
+		List<Company> companyList = CompanyService.getListCompanies();
+		for (Company company : companyList) {
+			System.out.println(company.getName());
+		}
+		String companyName = scanner.useDelimiter("\n").next();
+		return CompanyService.findByName(companyName);
+	}
 
+	private static void showComputerDetails() {
+		int id = getComputerId();
+		Computer computer = ComputerService.showDetail(id);
+		System.out.println(computer.toString());
+	}
+	
+	private static void createComputer() {
+		Computer inputComputer = getComputerInput();
+		ComputerService.create(inputComputer);
+		System.out.println(inputComputer);
+	}
+	
+	private static void updateComputer() {
+		System.out.println("Type the computer id that you want to update");
+		List<Computer> computerList = ComputerService.getListComputers();
+		for (Computer computer : computerList) {
+			System.out.println(computer.toString());
+		}
+		int id = getComputerId();
+		Computer computer = getComputerInput();
+		computer.setId(id);
+		ComputerService.update(computer);
+	}
+	
+	private static void removeComputer() {
+		int id1 = getComputerId();
+		Computer computerToRemove = ComputerService.showDetail(id1);
+		if (computerToRemove == null) {
+			System.out.println("computer not found");
+			return;
+		}
+		String name = computerToRemove.getName();
+		boolean deleted = ComputerService.remove(computerToRemove);
+		System.out.println("computer " + name + " is removed" + deleted);
+	}
 }

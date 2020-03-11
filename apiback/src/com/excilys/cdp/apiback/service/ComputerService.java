@@ -47,7 +47,6 @@ public class ComputerService {
 			return opt.get();
 		}
 		return null;
-//		throw new CustomException("Computer does not exist in our database", Constant.ER_NOT_FOUND);
 	}
 	
 	/**

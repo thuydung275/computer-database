@@ -9,7 +9,7 @@ public class Pagination {
 	private int limit;
 	private int page;
 	
-	private static final int DEFAULT_LIMIT = 5;
+	private static final int DEFAULT_LIMIT = 25;
 	private static final int DEFAULT_PAGE = 1;
 	
 	public Pagination() {
