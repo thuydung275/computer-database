@@ -1,51 +1,43 @@
 package com.excilys.cdp.apiback.persistence;
 
-import com.excilys.cdp.apiback.constant.Constant;
 import java.sql.*;
 
-public class MySqlConnection implements AutoCloseable {
-	
-	/**
-	 * Single instance not pre-initialized
-	 */
-    private static MySqlConnection INSTANCE = null;
-    private Connection connection;    
-    private static int counter = 0;
+import com.excilys.cdp.apiback.helper.Constant;
+
+public class MySqlConnection {
+
+    private static Connection connection = null;    
     
     /**
      * Private constructor
      */
-    private MySqlConnection() {
-    	counter++; 	
-        try {
-        	// instantiation du driver JDBC
-            Class.forName(Constant.DRIVER);
-            connection = (Connection)DriverManager.getConnection(Constant.URL+Constant.DB_NAME,Constant.USERNAME,Constant.PASSWORD);
-        }
-        catch (Exception sqle) {
-            sqle.printStackTrace();
-        }
-    }
+    private MySqlConnection() {}
 
     /**
      *
      * Access point for the singleton instance
      * @return MysqlConnect Database connection object
      */
-    public static synchronized MySqlConnection getInstance() {
-        if ( INSTANCE == null ) {
-        	INSTANCE = new MySqlConnection();
+    public static synchronized Connection getInstance() {
+        if (connection == null) {
+        	try {
+            	// instantiation du driver JDBC
+                Class.forName(Constant.DRIVER);
+                connection = (Connection)DriverManager.getConnection(Constant.URL+Constant.DB_NAME,Constant.USERNAME,Constant.PASSWORD);
+            }
+            catch (Exception sqle) {
+                sqle.printStackTrace();
+            }
         }
-        System.out.println("instance number : " + counter);
-        return INSTANCE;
+        return connection;
     }
     
-    public Connection getConnection() {
-    	return this.connection;
+    public static void closeSqlResources(PreparedStatement preparedStatement, ResultSet result) {
+        try { result.close(); } catch (Exception e) { System.out.println(e.getMessage()); }
+        try { preparedStatement.close(); } catch (Exception e) { System.out.println(e.getMessage()); }
     }
-
-	@Override
-	public void close() throws Exception {
-		connection.close();
-	}
+    
+    public static void closeSqlResources(PreparedStatement preparedStatement) {
+        try { preparedStatement.close(); } catch (Exception e) { System.out.println(e.getMessage()); }
+    }
 }
