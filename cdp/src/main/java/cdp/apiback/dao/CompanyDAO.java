@@ -1,4 +1,4 @@
-package com.excilys.cdp.apiback.dao;
+package cdp.apiback.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.excilys.cdp.apiback.model.*;
-import com.excilys.cdp.apiback.model.Company.CompanyBuilder;
-import com.excilys.cdp.apiback.persistence.MySqlConnection;
-import com.excilys.cdp.apiback.service.Pagination;
+import cdp.apiback.model.*;
+import cdp.apiback.model.Company.CompanyBuilder;
+import cdp.apiback.persistence.MySqlConnection;
+import cdp.apiback.service.Pagination;
 
 /**
  * 

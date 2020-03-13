@@ -1,21 +1,19 @@
-package com.excilys.cdp.apiback.dao;
+package cdp.apiback.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.excilys.cdp.apiback.model.Company;
-import com.excilys.cdp.apiback.model.Company.CompanyBuilder;
-import com.excilys.cdp.apiback.model.Computer;
-import com.excilys.cdp.apiback.model.Computer.ComputerBuilder;
-import com.excilys.cdp.apiback.persistence.MySqlConnection;
-import com.excilys.cdp.apiback.service.Pagination;
+import cdp.apiback.model.Company;
+import cdp.apiback.model.Company.CompanyBuilder;
+import cdp.apiback.model.Computer;
+import cdp.apiback.model.Computer.ComputerBuilder;
+import cdp.apiback.persistence.MySqlConnection;
+import cdp.apiback.service.Pagination;
 
 /**
  * 

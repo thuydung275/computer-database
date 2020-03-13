@@ -1,4 +1,4 @@
-package com.excilys.cdp.ui;
+package cdp.ui;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -7,10 +7,10 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.excilys.cdp.apiback.helper.DateHelper;
-import com.excilys.cdp.apiback.model.*;
-import com.excilys.cdp.apiback.model.Computer.ComputerBuilder;
-import com.excilys.cdp.apiback.service.*;
+import cdp.apiback.helper.DateHelper;
+import cdp.apiback.model.*;
+import cdp.apiback.model.Computer.ComputerBuilder;
+import cdp.apiback.service.*;
 
 public class AffichageCLI {
 	
