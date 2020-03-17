@@ -127,3 +127,6 @@ buildNumber.properties
 
 # tomcat Servers
 Servers/
+
+# Custom log file
+MavenWebApp/log.out
