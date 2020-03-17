@@ -1,4 +1,4 @@
-# computer-database
+# Computer Database Project
 
 ## To generate a new project from this archetype
 
