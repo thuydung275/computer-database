@@ -4,7 +4,7 @@ public class Constant {
 	
 	public static final String URL = "jdbc:mysql://localhost:3306/";
 	public static final String DB_NAME = "computer-database-db";
-	public static final String DRIVER = "com.mysql.jdbc.Driver";
+	public static final String DRIVER = "com.mysql.cj.jdbc.Driver";
 	public static final String USERNAME = "admincdb";
 	public static final String PASSWORD = "qwerty1234";
 	
@@ -14,6 +14,8 @@ public class Constant {
     public static int ER_CREATE = 3;
     public static int ER_EDIT = 4;
     public static int ER_DELETE = 5;
+    
+    public static String TEXT_ER_NOT_FOUND = " does not exist in our database";
     
     
     // error computers

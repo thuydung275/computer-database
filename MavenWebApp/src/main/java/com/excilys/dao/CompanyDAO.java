@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.hamcrest.Matcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.excilys.connection.DBConnection;
 import com.excilys.model.*;
 import com.excilys.model.Company.CompanyBuilder;
@@ -20,6 +24,7 @@ import com.excilys.service.Pagination;
  */
 public class CompanyDAO{
 	
+	private static Logger log = LoggerFactory.getLogger(CompanyDAO.class);
 	private static Connection connection = DBConnection.getInstance();
 	private static CompanyDAO companyDAO;
 	
@@ -55,9 +60,8 @@ public class CompanyDAO{
 			while(result.next()) {
 				company = this.setObject(result);
 			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException sqle) {
+			log.debug(sqle.getMessage());
 		} finally {
 			DBConnection.closeSqlResources(preparedStatement, result);
         }
@@ -82,9 +86,8 @@ public class CompanyDAO{
 			while(result.next()) {
 				company = this.setObject(result);
 			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException sqle) {
+			log.debug(sqle.getMessage());
 		} finally {
 			DBConnection.closeSqlResources(preparedStatement, result);
         }
@@ -108,9 +111,8 @@ public class CompanyDAO{
 			while(result.next()) {
 				companyList.add(this.setObject(result));
 			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException sqle) {
+			log.debug(sqle.getMessage());
 		} finally {
 			DBConnection.closeSqlResources(preparedStatement, result);
         }
@@ -135,9 +137,8 @@ public class CompanyDAO{
 			while(result.next()) {
 				companyList.add(this.setObject(result));
 			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException sqle) {
+			log.debug(sqle.getMessage());
 		} finally {
 			DBConnection.closeSqlResources(preparedStatement, result);
         }
@@ -159,9 +160,8 @@ public class CompanyDAO{
 			result = preparedStatement.getGeneratedKeys();
 			int lastInsertedId = result.next() ? result.getInt(1) : null;
 			company.setId(lastInsertedId);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException sqle) {
+			log.debug(sqle.getMessage());
 		} finally {
 			DBConnection.closeSqlResources(preparedStatement, result);
         }
@@ -180,9 +180,8 @@ public class CompanyDAO{
 			preparedStatement.setString(1, company.getName());
 			preparedStatement.setInt(2, company.getId());
 			preparedStatement.executeUpdate();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException sqle) {
+			log.debug(sqle.getMessage());
 		} finally {
 			DBConnection.closeSqlResources(preparedStatement);
         }
@@ -202,9 +201,8 @@ public class CompanyDAO{
 			preparedStatement.setInt(1, companyId);
 			preparedStatement.executeUpdate();
 			deleted = true;
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException sqle) {
+			log.debug(sqle.getMessage());
 		} finally {
 			DBConnection.closeSqlResources(preparedStatement);
         }

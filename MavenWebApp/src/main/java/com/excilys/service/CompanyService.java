@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import com.excilys.dao.CompanyDAO;
+import com.excilys.helper.Constant;
+import com.excilys.helper.CustomException;
 import com.excilys.model.Company;
 
 /**
@@ -20,12 +22,12 @@ public class CompanyService {
 	 * @param name
 	 * @return
 	 */
-	public static Company findByName(String name) {
+	public Company findByName(String name) {
 		Optional<Company> opt = companyInstance.findByName(name);
 		if (opt.isPresent()) {
 			return opt.get();
 		}
-		return null;
+		throw new CustomException(name + Constant.TEXT_ER_NOT_FOUND, Constant.ER_NOT_FOUND);
 	}
 	
 	/**
@@ -33,19 +35,19 @@ public class CompanyService {
 	 * @param id
 	 * @return
 	 */
-	public static Company showDetail(int id) {
+	public Company findById(int id) {
 		Optional<Company> opt = companyInstance.findById(id);
 		if (opt.isPresent()) {
 			return opt.get();
 		}
-		return null;
+		throw new CustomException(id + Constant.TEXT_ER_NOT_FOUND, Constant.ER_NOT_FOUND);
 	}
 	
 	/**
 	 * 
 	 * @return
 	 */
-	public static List<Company> getListCompanies() {
+	public List<Company> getListCompanies() {
 		return companyInstance.getList();
 	}
 	
@@ -54,7 +56,8 @@ public class CompanyService {
 	 * @param page
 	 * @return
 	 */
-	public static List<Company> getListPerPage(Pagination page) {
+	public List<Company> getListPerPage(Pagination page) {
 		return companyInstance.getListPerPage(page);
 	}
+	
 }

@@ -4,27 +4,31 @@ import java.util.List;
 
 import com.excilys.model.Computer;
 
+/**
+ * Pagination service
+ * @author thuydung
+ *
+ */
 public class Pagination {
 	
 	private int limit;
 	private int page;
+	private int totalItem;
 	
+	// show 25 item per page by default
 	private static final int DEFAULT_LIMIT = 25;
 	private static final int DEFAULT_PAGE = 1;
 	
-	public Pagination() {
+	public Pagination(int totalItem) {
 		this.limit = DEFAULT_LIMIT;
 		this.page = DEFAULT_PAGE;
+		this.totalItem = totalItem;
 	}
 	
-	public Pagination(int limit, int page) {
+	public Pagination(int limit, int page, int totalItem) {
 		this.limit = limit;
 		this.page = page;
-	}
-	
-	public Pagination(int page) {
-		this.limit = DEFAULT_LIMIT;
-		this.page = page;
+		this.totalItem = totalItem;
 	}
 
 	public int getLimit() {
@@ -43,7 +47,33 @@ public class Pagination {
 		this.page = page;
 	}
 	
-	public int getTotalPage(int nbComputer) {
-		return (int) Math.ceil(((double) nbComputer / (double) this.limit));
+	public int getTotalItem() {
+		return totalItem;
+	}
+
+	public void setTotalItem(int totalItem) {
+		this.totalItem = totalItem;
+	}
+
+	public int getTotalPage() {
+		return (int) Math.ceil(((double) this.totalItem / (double) this.limit));
+	}
+	
+	/**
+	 * go to the next page
+	 */
+	public void next() {
+		if(this.page < this.getTotalPage()) {
+			this.page++;
+		}
+	}
+	
+	/**
+	 * go to the previous page
+	 */
+	public void prev() {
+		if (this.page > 1) {
+			this.page--;
+		}
 	}
 }

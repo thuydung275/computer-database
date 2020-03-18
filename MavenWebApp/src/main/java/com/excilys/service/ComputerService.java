@@ -17,12 +17,13 @@ import com.excilys.model.Computer;
 public class ComputerService {
 	
 	private static ComputerDAO computerInstance = ComputerDAO.getInstance();
+	private static CompanyService companyService  = new CompanyService();
 	
 	/**
 	 * 
 	 * @return
 	 */
-	public static List<Computer> getListComputers() {
+	public List<Computer> getListComputers() {
 		return computerInstance.getList();
 	}
 	
@@ -31,7 +32,7 @@ public class ComputerService {
 	 * @param page
 	 * @return
 	 */
-	public static List<Computer> getListComputerPerPage(Pagination page) {
+	public List<Computer> getListPerPage(Pagination page) {
 		return computerInstance.getListPerPage(page);
 	}
 	
@@ -40,12 +41,12 @@ public class ComputerService {
 	 * @param id
 	 * @return
 	 */
-	public static Computer showDetail(int id) {
+	public Computer findById(int id) {
 		Optional<Computer> opt = computerInstance.findById(id);
 		if (opt.isPresent()) {
 			return opt.get();
 		}
-		return null;
+		throw new CustomException(id + Constant.TEXT_ER_NOT_FOUND, Constant.ER_NOT_FOUND);
 	}
 	
 	/**
@@ -53,7 +54,7 @@ public class ComputerService {
 	 * @param computer
 	 * @return
 	 */
-	public static Computer create(Computer computer) {
+	public Computer create(Computer computer) {
 		if (computer.getIntroduced() != null && computer.getDiscontinued() != null) {
 			if (computer.getDiscontinued().compareTo(computer.getIntroduced()) < 0){
 				throw new CustomException("discontinued date is smaller then introduced date", Constant.ER_INTRODUCED_BIGGER_DISCONTINUED);
@@ -62,12 +63,11 @@ public class ComputerService {
 			throw new CustomException("introduced date is null while discontinued date is not null", Constant.ER_DISCONTINUED_NULL_INTRODUCED_NOT_NULL);
 		}
 		if (computer.getCompany() != null) {
-			if (computer.getCompany().getId() == 0) {
-				throw new CustomException("company does not exist in our database", Constant.ER_NOT_FOUND);
+			if (computer.getCompany().getId() != 0) {
+				Company company = companyService.findById(computer.getCompany().getId());
 			} else {
-				Company company = CompanyService.showDetail(computer.getCompany().getId());
+				throw new CustomException("company does not exist in our database", Constant.ER_NOT_FOUND);
 			}
-			
 		}
 		return computerInstance.create(computer);	
 	}
@@ -77,7 +77,7 @@ public class ComputerService {
 	 * @param computer
 	 * @return
 	 */
-	public static Computer update(Computer computer) {
+	public Computer update(Computer computer) {
 		Optional<Computer> computerFromDB = computerInstance.findById(computer.getId());
 		if (!computerFromDB.isPresent()) {
 			throw new CustomException("Computer does not exist in our database", Constant.ER_NOT_FOUND);
@@ -99,7 +99,7 @@ public class ComputerService {
 	 * @param computer
 	 * @return
 	 */
-	public static boolean remove(Computer computer) {
+	public boolean remove(Computer computer) {
 		Optional<Computer> computerFromDB = computerInstance.findById(computer.getId());
 		if (!computerFromDB.isPresent()) {
 			throw new CustomException("Computer does not exist in our database", Constant.ER_NOT_FOUND);

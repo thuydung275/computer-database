@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.excilys.connection.DBConnection;
 import com.excilys.model.Company;
 import com.excilys.model.Computer;
@@ -22,6 +25,7 @@ import com.excilys.service.Pagination;
  */
 public class ComputerDAO {
 	
+	private static Logger log = LoggerFactory.getLogger(ComputerDAO.class);
 	private static Connection connection = DBConnection.getInstance();
 	private static ComputerDAO computerDAO;
 	
@@ -57,9 +61,8 @@ public class ComputerDAO {
 			while(result.next()) {
 				computer = this.setObject(result);
 			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException sqle) {
+			log.debug(sqle.getMessage());
 		} finally {
 			DBConnection.closeSqlResources(preparedStatement, result);
         }
@@ -82,9 +85,8 @@ public class ComputerDAO {
 			while(result.next()) {
 				computerList.add(this.setObject(result));
 			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException sqle) {
+			log.debug(sqle.getMessage());
 		} finally {
 			DBConnection.closeSqlResources(preparedStatement, result);
         }
@@ -108,9 +110,8 @@ public class ComputerDAO {
 			while(result.next()) {
 				computerList.add(this.setObject(result));
 			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException sqle) {
+			log.debug(sqle.getMessage());
 		} finally {
 			DBConnection.closeSqlResources(preparedStatement, result);
         }
@@ -153,9 +154,8 @@ public class ComputerDAO {
 			
 			int lastInsertedId = result.next() ? result.getInt(1) : null;
 			computer.setId(lastInsertedId);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException sqle) {
+			log.debug(sqle.getMessage());
 		} finally {
 			DBConnection.closeSqlResources(preparedStatement, result);
         }
@@ -193,9 +193,8 @@ public class ComputerDAO {
 			}
 			preparedStatement.setInt(i++, computer.getId());
 			preparedStatement.executeUpdate();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException sqle) {
+			log.debug(sqle.getMessage());
 		} finally {
 			DBConnection.closeSqlResources(preparedStatement);
         }
@@ -214,9 +213,8 @@ public class ComputerDAO {
 			preparedStatement = connection.prepareStatement(DELETE_COMPUTER);
 			preparedStatement.setInt(1, computerId);
 			preparedStatement.executeUpdate();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException sqle) {
+			log.debug(sqle.getMessage());
 		} finally {
 			DBConnection.closeSqlResources(preparedStatement);
         }
