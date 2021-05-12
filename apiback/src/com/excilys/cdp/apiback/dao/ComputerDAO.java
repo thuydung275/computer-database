@@ -128,7 +128,7 @@ public class ComputerDAO {
 		PreparedStatement preparedStatement = null;
 		ResultSet result = null;
 		try {
-			preparedStatement = connection.prepareStatement(CREATE_COMPUTER);
+			preparedStatement = connection.prepareStatement(CREATE_COMPUTER, preparedStatement.RETURN_GENERATED_KEYS);
 			int i = 1;
 			preparedStatement.setString(i++, computer.getName());
 			
@@ -216,8 +216,8 @@ public class ComputerDAO {
 			preparedStatement = connection.prepareStatement(DELETE_COMPUTER);
 			preparedStatement.setInt(1, computerId);
 			preparedStatement.executeUpdate();
+			deleted = true;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			MySqlConnection.closeSqlResources(preparedStatement);

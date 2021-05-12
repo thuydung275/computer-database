@@ -130,10 +130,11 @@ public class AffichageCLI {
 		}
 		
 		Company company = getSelectedCompany();
-		if (company != null) {
-			builder.setCompany(company);
+		if (company == null) {
+			System.out.println("No Company found !");
+			return null;
 		}
-
+		builder.setCompany(company);
 		Computer newComputer = builder.build();
 		return newComputer;
 	}
@@ -225,13 +226,24 @@ public class AffichageCLI {
 	private static void showComputerDetails() {
 		int id = getComputerId();
 		Computer computer = ComputerService.showDetail(id);
-		System.out.println(computer.toString());
+		if (computer != null) {
+			System.out.println(computer.toString());
+		} else {
+			System.out.println("No computer found ! ");
+		}
+		
 	}
 	
 	private static void createComputer() {
 		Computer inputComputer = getComputerInput();
-		ComputerService.create(inputComputer);
-		System.out.println(inputComputer);
+		if (inputComputer != null) {
+			try {
+				ComputerService.create(inputComputer);
+				System.out.println(inputComputer);
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
+		}
 	}
 	
 	private static void updateComputer() {
@@ -241,9 +253,19 @@ public class AffichageCLI {
 			System.out.println(computer.toString());
 		}
 		int id = getComputerId();
-		Computer computer = getComputerInput();
-		computer.setId(id);
-		ComputerService.update(computer);
+		Computer computer = ComputerService.showDetail(id);
+		if (computer == null) {
+			System.out.println("No computer found !");
+			return;
+		} 
+		
+		try {
+			computer = getComputerInput();
+			computer.setId(id);
+			ComputerService.update(computer);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
 	}
 	
 	private static void removeComputer() {
@@ -255,6 +277,6 @@ public class AffichageCLI {
 		}
 		String name = computerToRemove.getName();
 		boolean deleted = ComputerService.remove(computerToRemove);
-		System.out.println("computer " + name + " is removed" + deleted);
+		System.out.println("computer " + name + " is removed: " + deleted);
 	}
 }
