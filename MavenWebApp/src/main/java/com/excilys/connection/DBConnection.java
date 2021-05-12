@@ -25,8 +25,6 @@ public class DBConnection {
     public static synchronized Connection getInstance() {
         if (connection == null) {
         	try {
-            	// instantiation du driver JDBC
-                Class.forName(Constant.DRIVER);
                 connection = (Connection)DriverManager.getConnection(Constant.URL+Constant.DB_NAME,Constant.USERNAME,Constant.PASSWORD);
             }
             catch (Exception sqle) {
