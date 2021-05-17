@@ -9,7 +9,7 @@ import com.excilys.helper.Constant;
 
 public class DBConnection {
 
-    private static Connection connection = null;    
+    private static DBConnection connection = null;    
     private static Logger log = LoggerFactory.getLogger(DBConnection.class);
     
     /**
@@ -20,19 +20,22 @@ public class DBConnection {
     /**
      *
      * Access point for the singleton instance
-     * @return MysqlConnect Database connection object
+     * @return instance of DBConnection class
      */
-    public static synchronized Connection getInstance() {
+    public static synchronized DBConnection getInstance() {
         if (connection == null) {
-        	try {
-                connection = (Connection)DriverManager.getConnection(Constant.URL+Constant.DB_NAME,Constant.USERNAME,Constant.PASSWORD);
-            }
-            catch (Exception sqle) {
-            	log.debug(sqle.getMessage());
-            }
+        	connection = new DBConnection();
         }
         return connection;
     }
+    
+    public Connection getSQLConnection() throws SQLException {
+		return DriverManager.getConnection(Constant.URL+Constant.DB_NAME,Constant.USERNAME,Constant.PASSWORD);
+	}
+    
+    public Connection getH2Connection() throws SQLException {
+		return DriverManager.getConnection(Constant.H2_URL,Constant.H2_USERNAME,Constant.H2_PASSWORD);
+	}
     
 	public static void closeSqlResources(PreparedStatement preparedStatement, ResultSet result) {
 		try {

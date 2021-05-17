@@ -1,6 +1,5 @@
 package com.excilys.dao;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.excilys.connection.DBConnection;
-import com.excilys.model.*;
-import com.excilys.model.Company.CompanyBuilder;
+import com.excilys.mapper.CompanyMapper;
+import com.excilys.model.Company;
 import com.excilys.service.Pagination;
 
 /**
@@ -24,7 +23,7 @@ import com.excilys.service.Pagination;
 public class CompanyDAO{
 	
 	private static Logger log = LoggerFactory.getLogger(CompanyDAO.class);
-	private static Connection connection = DBConnection.getInstance();
+	private static DBConnection connection = DBConnection.getInstance();
 	private static CompanyDAO companyDAO;
 	
 	private static final String FIND_BY_ID = "SELECT company.id, company.name FROM company WHERE company.id = ?";
@@ -53,11 +52,11 @@ public class CompanyDAO{
 		PreparedStatement preparedStatement = null;
 		ResultSet result = null;
 		try {
-			preparedStatement = connection.prepareStatement(FIND_BY_ID);
+			preparedStatement = connection.getSQLConnection().prepareStatement(FIND_BY_ID);
 			preparedStatement.setInt(1, id);
 			result = preparedStatement.executeQuery();
 			while(result.next()) {
-				company = this.setObject(result);
+				company = CompanyMapper.setObject(result);
 			}
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
@@ -79,11 +78,11 @@ public class CompanyDAO{
 		PreparedStatement preparedStatement = null;
 		ResultSet result = null;
 		try {
-			preparedStatement = connection.prepareStatement(FIND_BY_NAME);
+			preparedStatement = connection.getSQLConnection().prepareStatement(FIND_BY_NAME);
 			preparedStatement.setString(1, name);
 			result = preparedStatement.executeQuery();
 			while(result.next()) {
-				company = this.setObject(result);
+				company = CompanyMapper.setObject(result);
 			}
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
@@ -105,10 +104,10 @@ public class CompanyDAO{
 		List<Company> companyList = new ArrayList<>();
 
 		try {
-			preparedStatement = connection.prepareStatement(FIND_ALL);
+			preparedStatement = connection.getSQLConnection().prepareStatement(FIND_ALL);
 			result = preparedStatement.executeQuery();
 			while(result.next()) {
-				companyList.add(this.setObject(result));
+				companyList.add(CompanyMapper.setObject(result));
 			}
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
@@ -131,10 +130,10 @@ public class CompanyDAO{
 		String withLimit = " LIMIT " + page.getLimit() * (page.getPage() - 1) + "," + page.getLimit();
 		
 		try {
-			preparedStatement = connection.prepareStatement(FIND_ALL + withLimit);
+			preparedStatement = connection.getSQLConnection().prepareStatement(FIND_ALL + withLimit);
 			result = preparedStatement.executeQuery();
 			while(result.next()) {
-				companyList.add(this.setObject(result));
+				companyList.add(CompanyMapper.setObject(result));
 			}
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
@@ -153,7 +152,7 @@ public class CompanyDAO{
 		PreparedStatement preparedStatement = null;
 		ResultSet result = null;
 		try {
-			preparedStatement = connection.prepareStatement(CREATE_COMPANY);
+			preparedStatement = connection.getSQLConnection().prepareStatement(CREATE_COMPANY);
 			preparedStatement.setString(1, company.getName());
 			preparedStatement.executeUpdate();
 			result = preparedStatement.getGeneratedKeys();
@@ -175,7 +174,7 @@ public class CompanyDAO{
 	public Company update(Company company) {
 		PreparedStatement preparedStatement = null;
 		try {
-			preparedStatement = connection.prepareStatement(UPDATE_COMPANY);
+			preparedStatement = connection.getSQLConnection().prepareStatement(UPDATE_COMPANY);
 			preparedStatement.setString(1, company.getName());
 			preparedStatement.setInt(2, company.getId());
 			preparedStatement.executeUpdate();
@@ -196,7 +195,7 @@ public class CompanyDAO{
 		boolean deleted = false;
 		PreparedStatement preparedStatement = null;
 		try {
-			preparedStatement = connection.prepareStatement(DELETE_COMPANY);
+			preparedStatement = connection.getSQLConnection().prepareStatement(DELETE_COMPANY);
 			preparedStatement.setInt(1, companyId);
 			preparedStatement.executeUpdate();
 			deleted = true;
@@ -207,25 +206,6 @@ public class CompanyDAO{
         }
 		
 		return deleted;
-	}
-	
-	/**
-	 * 
-	 * @param result
-	 * @return
-	 * @throws SQLException
-	 */
-	private Company setObject(ResultSet result) throws SQLException {
-		CompanyBuilder builder = new Company.CompanyBuilder();
-
-		builder.setId(result.getInt("company.id"));
-		
-		if (result.getString("company.name") != null) {
-			builder.setName(result.getString("company.name"));
-		}
-		
-		Company Company = builder.build();
-		return Company;
 	}
 
 }

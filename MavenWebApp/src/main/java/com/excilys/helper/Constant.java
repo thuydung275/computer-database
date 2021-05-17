@@ -8,6 +8,11 @@ public class Constant {
 	public static final String USERNAME = "admincdb";
 	public static final String PASSWORD = "qwerty1234";
 	
+	public static final String H2_URL = "jdbc:h2:~/test";
+	public static final String H2_DRIVER = "org.h2.Driver";
+	public static final String H2_USERNAME = "sa";
+	public static final String H2_PASSWORD = "";
+	
 	// generals errors
     public static int ER_NOT_FOUND = 1;
     public static int ER_ALREADY_EXIST = 2;

@@ -1,6 +1,5 @@
 package com.excilys.dao;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,10 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.excilys.connection.DBConnection;
-import com.excilys.model.Company;
+import com.excilys.mapper.ComputerMapper;
 import com.excilys.model.Computer;
-import com.excilys.model.Company.CompanyBuilder;
-import com.excilys.model.Computer.ComputerBuilder;
 import com.excilys.service.Pagination;
 
 /**
@@ -26,7 +23,7 @@ import com.excilys.service.Pagination;
 public class ComputerDAO {
 	
 	private static Logger log = LoggerFactory.getLogger(ComputerDAO.class);
-	private static Connection connection = DBConnection.getInstance();
+	private static DBConnection connection = DBConnection.getInstance();
 	private static ComputerDAO computerDAO;
 	
 	private static final String FIND_BY_ID = "SELECT computer.id, computer.name, computer.introduced, computer.discontinued, computer.company_id, company.name FROM computer LEFT JOIN company ON computer.company_id = company.id WHERE computer.id = ?";
@@ -55,11 +52,11 @@ public class ComputerDAO {
 		Computer computer = null;
 		
 		try {
-			preparedStatement = connection.prepareStatement(FIND_BY_ID);
+			preparedStatement = connection.getSQLConnection().prepareStatement(FIND_BY_ID);
 			preparedStatement.setInt(1, id);
 			result = preparedStatement.executeQuery();
 			while(result.next()) {
-				computer = this.setObject(result);
+				computer = ComputerMapper.setObject(result);
 			}
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
@@ -80,10 +77,10 @@ public class ComputerDAO {
 		List<Computer> computerList = new ArrayList<>();
 
 		try {
-			preparedStatement = connection.prepareStatement(FIND_ALL);
+			preparedStatement = connection.getSQLConnection().prepareStatement(FIND_ALL);
 			result = preparedStatement.executeQuery();
 			while(result.next()) {
-				computerList.add(this.setObject(result));
+				computerList.add(ComputerMapper.setObject(result));
 			}
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
@@ -105,10 +102,10 @@ public class ComputerDAO {
 		String withLimit = " LIMIT " + page.getLimit() * (page.getPage() - 1) + "," + page.getLimit();
 		
 		try {
-			preparedStatement = connection.prepareStatement(FIND_ALL + withLimit);
+			preparedStatement = connection.getSQLConnection().prepareStatement(FIND_ALL + withLimit);
 			result = preparedStatement.executeQuery();
 			while(result.next()) {
-				computerList.add(this.setObject(result));
+				computerList.add(ComputerMapper.setObject(result));
 			}
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
@@ -127,7 +124,7 @@ public class ComputerDAO {
 		PreparedStatement preparedStatement = null;
 		ResultSet result = null;
 		try {
-			preparedStatement = connection.prepareStatement(CREATE_COMPUTER);
+			preparedStatement = connection.getSQLConnection().prepareStatement(CREATE_COMPUTER);
 			int i = 1;
 			preparedStatement.setString(i++, computer.getName());
 			
@@ -170,7 +167,7 @@ public class ComputerDAO {
 	public Computer update(Computer computer) {
 		PreparedStatement preparedStatement = null;
 		try {
-			preparedStatement = connection.prepareStatement(UPDATE_COMPUTER);
+			preparedStatement = connection.getSQLConnection().prepareStatement(UPDATE_COMPUTER);
 			int i = 1;
 			preparedStatement.setString(i++, computer.getName());
 			
@@ -210,7 +207,7 @@ public class ComputerDAO {
 		boolean deleted = false;
 		PreparedStatement preparedStatement = null;
 		try {
-			preparedStatement = connection.prepareStatement(DELETE_COMPUTER);
+			preparedStatement = connection.getSQLConnection().prepareStatement(DELETE_COMPUTER);
 			preparedStatement.setInt(1, computerId);
 			preparedStatement.executeUpdate();
 		} catch (SQLException sqle) {
@@ -219,43 +216,6 @@ public class ComputerDAO {
 			DBConnection.closeSqlResources(preparedStatement);
         }
 		return deleted;
-	}
-	
-	/**
-	 * 
-	 * @param result
-	 * @return
-	 * @throws SQLException
-	 */
-	private Computer setObject(ResultSet result) throws SQLException {
-		ComputerBuilder builder = new Computer.ComputerBuilder();
-
-		builder.setId(result.getInt("computer.id"));
-		
-		if (result.getString("computer.name") != null) {
-			builder.setName(result.getString("computer.name"));
-		}
-
-		if (result.getDate("computer.introduced") != null) {
-			builder.setIntroduced(result.getDate("computer.introduced").toLocalDate());
-		}
-		
-		if (result.getDate("computer.discontinued") != null) {
-			builder.setDiscontinued(result.getDate("computer.discontinued").toLocalDate());
-		}
-		
-		// hydrate Company
-		if (result.getInt("computer.company_id") != 0) {
-			CompanyBuilder companyBuilder = new Company.CompanyBuilder().setId(result.getInt("computer.company_id"));
-			if (result.getString("company.name") != null) {
-				companyBuilder.setName(result.getString("company.name"));
-			}
-			Company company = companyBuilder.build();
-			builder.setCompany(company);
-		}
-		
-		Computer computer = builder.build();
-		return computer;
 	}
 
 }
