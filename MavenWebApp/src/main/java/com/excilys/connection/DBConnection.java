@@ -6,16 +6,14 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 import org.apache.commons.dbcp.BasicDataSource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.excilys.helper.Constant;
 import com.excilys.helper.CustomException;
 
 public class DBConnection {
 
-	private static Logger logger = LoggerFactory.getLogger(DBConnection.class);
+	private static Logger log = Logger.getLogger(DBConnection.class);
     public final static String className = DBConnection.class.getName();
     private DataSource dataSource = null;
 

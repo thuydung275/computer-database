@@ -9,13 +9,13 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.mockito.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.excilys.dao.CompanyDAO;
+import com.excilys.dao.ComputerDAO;
 import com.excilys.helper.Constant;
 import com.excilys.helper.CustomException;
 import com.excilys.model.Company;
@@ -24,7 +24,7 @@ import com.excilys.service.Pagination;
 
 public class CompanyServiceTest {
 	
-	private static Logger log = LoggerFactory.getLogger(CompanyServiceTest.class);
+	private static Logger log = Logger.getLogger(CompanyServiceTest.class);
 	
 	@Mock
 	CompanyDAO companyDao;

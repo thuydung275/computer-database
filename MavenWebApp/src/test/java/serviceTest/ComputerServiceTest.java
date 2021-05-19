@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -16,8 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.excilys.dao.CompanyDAO;
 import com.excilys.dao.ComputerDAO;
@@ -31,7 +30,7 @@ import com.excilys.service.Pagination;
 
 public class ComputerServiceTest {
 
-	private static Logger log = LoggerFactory.getLogger(ComputerServiceTest.class);
+	private static Logger log = Logger.getLogger(ComputerServiceTest.class);
 	
 	@Mock
 	ComputerDAO computerDao;

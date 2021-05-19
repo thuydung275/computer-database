@@ -7,8 +7,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.excilys.dao.CompanyDAO;
 import com.excilys.model.Company;
@@ -16,7 +14,6 @@ import com.excilys.service.Pagination;
 
 public class CompanyDAOTest {
 	
-	private static Logger log = LoggerFactory.getLogger(CompanyDAOTest.class);
 	private static CompanyDAO companyInstance;
 	
 	private static final int TOTAL_COMPANY = 42;

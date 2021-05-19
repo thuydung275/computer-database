@@ -2,12 +2,13 @@ package com.excilys.connection;
 
 import java.sql.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
+
+import com.excilys.App;
 
 public class ConnectionHelper {
 	
-	private static Logger log = LoggerFactory.getLogger(ConnectionHelper.class);
+	private static Logger log = Logger.getLogger(ConnectionHelper.class);
     public final static String className = ConnectionHelper.class.getName();
 
     public static void closeSqlResources(Connection connection, PreparedStatement preparedStatement, ResultSet result) {

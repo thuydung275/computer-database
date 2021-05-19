@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.excilys.connection.ConnectionHelper;
 import com.excilys.connection.DBConnection;
@@ -25,7 +24,7 @@ import com.excilys.service.Pagination;
  */
 public class CompanyDAO{
 	
-	private static Logger log = LoggerFactory.getLogger(CompanyDAO.class);
+	private static Logger log = Logger.getLogger(CompanyDAO.class);
 	private static BasicDataSource dataSource = (BasicDataSource) DBConnection.getInstance().getDataSource();
 	private static Connection connection;
 	private static ResultSet result;
