@@ -1,5 +1,6 @@
 package com.excilys.dao;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -7,9 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.excilys.connection.ConnectionHelper;
 import com.excilys.connection.DBConnection;
 import com.excilys.mapper.CompanyMapper;
 import com.excilys.model.Company;
@@ -23,8 +26,10 @@ import com.excilys.service.Pagination;
 public class CompanyDAO{
 	
 	private static Logger log = LoggerFactory.getLogger(CompanyDAO.class);
-	private static DBConnection connection = DBConnection.getInstance();
-	private static CompanyDAO companyDAO;
+	private static BasicDataSource dataSource = (BasicDataSource) DBConnection.getInstance().getDataSource();
+	private static Connection connection;
+	private static ResultSet result;
+    private static PreparedStatement preparedStatement;
 	
 	private static final String FIND_BY_ID = "SELECT company.id, company.name FROM company WHERE company.id = ?";
 	private static final String FIND_BY_NAME = "SELECT company.id, company.name FROM company WHERE company.name LIKE ?";
@@ -35,12 +40,13 @@ public class CompanyDAO{
 	
 	private CompanyDAO() {}
 	
-	public static synchronized CompanyDAO getInstance() {
-        if (companyDAO == null) {
-        	companyDAO = new CompanyDAO();
-        }
-        return companyDAO;
+	public static CompanyDAO getInstance() {
+        return SingletonHolder.instance;
     }
+	
+	private static class SingletonHolder {
+		private final static CompanyDAO instance = new CompanyDAO();
+	}
 	
 	/**
 	 * 
@@ -49,10 +55,10 @@ public class CompanyDAO{
 	 */
 	public Optional<Company> findById(int id) {
 		Company company = null;
-		PreparedStatement preparedStatement = null;
-		ResultSet result = null;
+		
 		try {
-			preparedStatement = connection.getSQLConnection().prepareStatement(FIND_BY_ID);
+			connection = dataSource.getConnection();
+			preparedStatement = connection.prepareStatement(FIND_BY_ID);
 			preparedStatement.setInt(1, id);
 			result = preparedStatement.executeQuery();
 			while(result.next()) {
@@ -61,7 +67,7 @@ public class CompanyDAO{
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
 		} finally {
-			DBConnection.closeSqlResources(preparedStatement, result);
+			ConnectionHelper.closeSqlResources(connection, preparedStatement, result);
         }
 		
 		Optional<Company> opt = Optional.ofNullable(company); 
@@ -75,10 +81,10 @@ public class CompanyDAO{
 	 */
 	public Optional<Company> findByName(String name) {
 		Company company = null;
-		PreparedStatement preparedStatement = null;
-		ResultSet result = null;
+		
 		try {
-			preparedStatement = connection.getSQLConnection().prepareStatement(FIND_BY_NAME);
+			connection = dataSource.getConnection();
+			preparedStatement = connection.prepareStatement(FIND_BY_NAME);
 			preparedStatement.setString(1, name);
 			result = preparedStatement.executeQuery();
 			while(result.next()) {
@@ -87,7 +93,7 @@ public class CompanyDAO{
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
 		} finally {
-			DBConnection.closeSqlResources(preparedStatement, result);
+			ConnectionHelper.closeSqlResources(connection, preparedStatement, result);
         }
 		
 		Optional<Company> opt = Optional.ofNullable(company); 
@@ -99,12 +105,11 @@ public class CompanyDAO{
 	 * @return
 	 */
 	public List<Company> getList() {
-		PreparedStatement preparedStatement = null;
-		ResultSet result = null;
 		List<Company> companyList = new ArrayList<>();
 
 		try {
-			preparedStatement = connection.getSQLConnection().prepareStatement(FIND_ALL);
+			connection = dataSource.getConnection();
+			preparedStatement = connection.prepareStatement(FIND_ALL);
 			result = preparedStatement.executeQuery();
 			while(result.next()) {
 				companyList.add(CompanyMapper.setObject(result));
@@ -112,7 +117,7 @@ public class CompanyDAO{
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
 		} finally {
-			DBConnection.closeSqlResources(preparedStatement, result);
+			ConnectionHelper.closeSqlResources(connection, preparedStatement, result);
         }
 		
 		return companyList;
@@ -124,13 +129,12 @@ public class CompanyDAO{
 	 * @return
 	 */
 	public List<Company> getListPerPage(Pagination page) {
-		PreparedStatement preparedStatement = null;
-		ResultSet result = null;
 		List<Company> companyList = new ArrayList<>();
 		String withLimit = " LIMIT " + page.getLimit() * (page.getPage() - 1) + "," + page.getLimit();
-		
+        
 		try {
-			preparedStatement = connection.getSQLConnection().prepareStatement(FIND_ALL + withLimit);
+			connection = dataSource.getConnection();
+			preparedStatement = connection.prepareStatement(FIND_ALL + withLimit);
 			result = preparedStatement.executeQuery();
 			while(result.next()) {
 				companyList.add(CompanyMapper.setObject(result));
@@ -138,7 +142,7 @@ public class CompanyDAO{
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
 		} finally {
-			DBConnection.closeSqlResources(preparedStatement, result);
+			ConnectionHelper.closeSqlResources(connection, preparedStatement, result);
         }
 		return companyList;
 	}
@@ -149,10 +153,10 @@ public class CompanyDAO{
 	 * @return
 	 */
 	public Company create(Company company) {
-		PreparedStatement preparedStatement = null;
-		ResultSet result = null;
+		
 		try {
-			preparedStatement = connection.getSQLConnection().prepareStatement(CREATE_COMPANY);
+			connection = dataSource.getConnection();
+			preparedStatement = connection.prepareStatement(CREATE_COMPANY, preparedStatement.RETURN_GENERATED_KEYS);
 			preparedStatement.setString(1, company.getName());
 			preparedStatement.executeUpdate();
 			result = preparedStatement.getGeneratedKeys();
@@ -161,7 +165,7 @@ public class CompanyDAO{
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
 		} finally {
-			DBConnection.closeSqlResources(preparedStatement, result);
+			ConnectionHelper.closeSqlResources(connection, preparedStatement, result);
         }
 		return company;
 	}
@@ -172,16 +176,17 @@ public class CompanyDAO{
 	 * @return
 	 */
 	public Company update(Company company) {
-		PreparedStatement preparedStatement = null;
+		
 		try {
-			preparedStatement = connection.getSQLConnection().prepareStatement(UPDATE_COMPANY);
+			connection = dataSource.getConnection();
+			preparedStatement = connection.prepareStatement(UPDATE_COMPANY);
 			preparedStatement.setString(1, company.getName());
 			preparedStatement.setInt(2, company.getId());
 			preparedStatement.executeUpdate();
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
 		} finally {
-			DBConnection.closeSqlResources(preparedStatement);
+			ConnectionHelper.closeSqlResources(connection, preparedStatement, result);
         }
 		return company;
 	}
@@ -193,18 +198,19 @@ public class CompanyDAO{
 	 */
 	public boolean delete(int companyId) {
 		boolean deleted = false;
-		PreparedStatement preparedStatement = null;
+		
 		try {
-			preparedStatement = connection.getSQLConnection().prepareStatement(DELETE_COMPANY);
+			connection = dataSource.getConnection();
+			preparedStatement = connection.prepareStatement(DELETE_COMPANY);
 			preparedStatement.setInt(1, companyId);
-			preparedStatement.executeUpdate();
-			deleted = true;
+			if (preparedStatement.executeUpdate() == 1) {
+				deleted = true;
+			}
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
 		} finally {
-			DBConnection.closeSqlResources(preparedStatement);
+			ConnectionHelper.closeSqlResources(connection, preparedStatement, result);
         }
-		
 		return deleted;
 	}
 
