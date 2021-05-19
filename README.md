@@ -7,3 +7,6 @@ mvn archetype:generate -DarchetypeGroupId=org.apache.maven.archetypes -Darchetyp
 ## Run Maven
 
 mvn exec:java -Dexec.mainClass="App"
+
+## Insert h2 database 
+RUNSCRIPT FROM 'computer-database-test.sql'

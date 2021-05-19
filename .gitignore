@@ -127,3 +127,6 @@ buildNumber.properties
 
 # tomcat Servers
 Servers/
+
+# H2 database
+h2-database/*

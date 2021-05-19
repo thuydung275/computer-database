@@ -1,5 +1,6 @@
 package com.excilys.dao;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -7,11 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.excilys.connection.ConnectionHelper;
 import com.excilys.connection.DBConnection;
+import com.excilys.mapper.CompanyMapper;
 import com.excilys.mapper.ComputerMapper;
+import com.excilys.model.Company;
 import com.excilys.model.Computer;
 import com.excilys.service.Pagination;
 
@@ -23,10 +28,13 @@ import com.excilys.service.Pagination;
 public class ComputerDAO {
 	
 	private static Logger log = LoggerFactory.getLogger(ComputerDAO.class);
-	private static DBConnection connection = DBConnection.getInstance();
-	private static ComputerDAO computerDAO;
+	private static BasicDataSource dataSource = (BasicDataSource) DBConnection.getInstance().getDataSource();
+	private static Connection connection;
+	private static ResultSet result;
+    private static PreparedStatement preparedStatement;
 	
 	private static final String FIND_BY_ID = "SELECT computer.id, computer.name, computer.introduced, computer.discontinued, computer.company_id, company.name FROM computer LEFT JOIN company ON computer.company_id = company.id WHERE computer.id = ?";
+	private static final String FIND_BY_NAME = "SELECT computer.id, computer.name, computer.introduced, computer.discontinued, computer.company_id, company.name FROM computer LEFT JOIN company ON computer.company_id = company.id WHERE computer.name LIKE ?";
 	private static final String FIND_ALL = "SELECT computer.id, computer.name, computer.introduced, computer.discontinued, computer.company_id, company.name FROM computer LEFT JOIN company ON computer.company_id = company.id ";
 	private static final String CREATE_COMPUTER = "INSERT INTO computer (name, introduced, discontinued, company_id) VALUES (?,?,?,?)";
 	private static final String UPDATE_COMPUTER = "UPDATE computer SET name = ?, introduced = ?, discontinued = ?, company_id = ? WHERE id = ? ";
@@ -34,12 +42,13 @@ public class ComputerDAO {
 	
 	private ComputerDAO() {}
 	
-	public static synchronized ComputerDAO getInstance() {
-        if (computerDAO == null) {
-        	computerDAO = new ComputerDAO();
-        }
-        return computerDAO;
+	public static ComputerDAO getInstance() {
+        return SingletonHolder.instance;
     }
+	
+	private static class SingletonHolder {
+		private final static ComputerDAO instance = new ComputerDAO();
+	}
 	
 	/**
 	 * 
@@ -47,12 +56,11 @@ public class ComputerDAO {
 	 * @return
 	 */
 	public Optional<Computer> findById(int id) {
-		PreparedStatement preparedStatement = null;
-		ResultSet result = null;
 		Computer computer = null;
 		
 		try {
-			preparedStatement = connection.getSQLConnection().prepareStatement(FIND_BY_ID);
+			connection = dataSource.getConnection();
+			preparedStatement = connection.prepareStatement(FIND_BY_ID);
 			preparedStatement.setInt(1, id);
 			result = preparedStatement.executeQuery();
 			while(result.next()) {
@@ -61,8 +69,34 @@ public class ComputerDAO {
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
 		} finally {
-			DBConnection.closeSqlResources(preparedStatement, result);
+			ConnectionHelper.closeSqlResources(connection, preparedStatement, result);
         }
+		Optional<Computer> opt = Optional.ofNullable(computer); 
+		return opt;
+	}
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public Optional<Computer> findByName(String name) {
+		Computer computer = null;
+		
+		try {
+			connection = dataSource.getConnection();
+			preparedStatement = connection.prepareStatement(FIND_BY_NAME);
+			preparedStatement.setString(1, name);
+			result = preparedStatement.executeQuery();
+			while(result.next()) {
+				computer = ComputerMapper.setObject(result);
+			}
+		} catch (SQLException sqle) {
+			log.debug(sqle.getMessage());
+		} finally {
+			ConnectionHelper.closeSqlResources(connection, preparedStatement, result);
+        }
+		
 		Optional<Computer> opt = Optional.ofNullable(computer); 
 		return opt;
 	}
@@ -72,12 +106,11 @@ public class ComputerDAO {
 	 * @return
 	 */
 	public List<Computer> getList() {	
-		PreparedStatement preparedStatement = null;
-		ResultSet result = null;
 		List<Computer> computerList = new ArrayList<>();
 
 		try {
-			preparedStatement = connection.getSQLConnection().prepareStatement(FIND_ALL);
+			connection = dataSource.getConnection();
+			preparedStatement = connection.prepareStatement(FIND_ALL);
 			result = preparedStatement.executeQuery();
 			while(result.next()) {
 				computerList.add(ComputerMapper.setObject(result));
@@ -85,7 +118,7 @@ public class ComputerDAO {
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
 		} finally {
-			DBConnection.closeSqlResources(preparedStatement, result);
+			ConnectionHelper.closeSqlResources(connection, preparedStatement, result);
         }
 		return computerList;
 	}
@@ -96,13 +129,12 @@ public class ComputerDAO {
 	 * @return
 	 */
 	public List<Computer> getListPerPage(Pagination page) {	
-		PreparedStatement preparedStatement = null;
-		ResultSet result = null;
 		List<Computer> computerList = new ArrayList<>();
 		String withLimit = " LIMIT " + page.getLimit() * (page.getPage() - 1) + "," + page.getLimit();
 		
 		try {
-			preparedStatement = connection.getSQLConnection().prepareStatement(FIND_ALL + withLimit);
+			connection = dataSource.getConnection();
+			preparedStatement = connection.prepareStatement(FIND_ALL + withLimit);
 			result = preparedStatement.executeQuery();
 			while(result.next()) {
 				computerList.add(ComputerMapper.setObject(result));
@@ -110,7 +142,7 @@ public class ComputerDAO {
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
 		} finally {
-			DBConnection.closeSqlResources(preparedStatement, result);
+			ConnectionHelper.closeSqlResources(connection, preparedStatement, result);
         }
 		return computerList;
 	}
@@ -121,10 +153,10 @@ public class ComputerDAO {
 	 * @return
 	 */
 	public Computer create(Computer computer) {
-		PreparedStatement preparedStatement = null;
-		ResultSet result = null;
+        
 		try {
-			preparedStatement = connection.getSQLConnection().prepareStatement(CREATE_COMPUTER);
+			connection = dataSource.getConnection();
+			preparedStatement = connection.prepareStatement(CREATE_COMPUTER, preparedStatement.RETURN_GENERATED_KEYS);
 			int i = 1;
 			preparedStatement.setString(i++, computer.getName());
 			
@@ -154,7 +186,7 @@ public class ComputerDAO {
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
 		} finally {
-			DBConnection.closeSqlResources(preparedStatement, result);
+			ConnectionHelper.closeSqlResources(connection, preparedStatement, result);
         }
 		return computer;
 	}
@@ -165,9 +197,10 @@ public class ComputerDAO {
 	 * @return
 	 */
 	public Computer update(Computer computer) {
-		PreparedStatement preparedStatement = null;
+        
 		try {
-			preparedStatement = connection.getSQLConnection().prepareStatement(UPDATE_COMPUTER);
+			connection = dataSource.getConnection();
+			preparedStatement = connection.prepareStatement(UPDATE_COMPUTER);
 			int i = 1;
 			preparedStatement.setString(i++, computer.getName());
 			
@@ -193,7 +226,7 @@ public class ComputerDAO {
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
 		} finally {
-			DBConnection.closeSqlResources(preparedStatement);
+			ConnectionHelper.closeSqlResources(connection, preparedStatement, result);
         }
 		return computer;
 	}
@@ -205,15 +238,18 @@ public class ComputerDAO {
 	 */
 	public boolean delete(int computerId) {
 		boolean deleted = false;
-		PreparedStatement preparedStatement = null;
+        
 		try {
-			preparedStatement = connection.getSQLConnection().prepareStatement(DELETE_COMPUTER);
+			connection = dataSource.getConnection();
+			preparedStatement = connection.prepareStatement(DELETE_COMPUTER);
 			preparedStatement.setInt(1, computerId);
-			preparedStatement.executeUpdate();
+			if (preparedStatement.executeUpdate() == 1) {
+				deleted = true;
+			}
 		} catch (SQLException sqle) {
 			log.debug(sqle.getMessage());
 		} finally {
-			DBConnection.closeSqlResources(preparedStatement);
+			ConnectionHelper.closeSqlResources(connection, preparedStatement, result);
         }
 		return deleted;
 	}
