@@ -1,16 +1,21 @@
 package com.excilys.connection;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 import org.apache.log4j.Logger;
 
-import com.excilys.App;
-
 public class ConnectionHelper {
-	
-	private static Logger log = Logger.getLogger(ConnectionHelper.class);
-    public final static String className = ConnectionHelper.class.getName();
 
+    private static Logger log = Logger.getLogger(ConnectionHelper.class);
+
+    /**
+     *
+     * @param connection
+     * @param preparedStatement
+     * @param result
+     */
     public static void closeSqlResources(Connection connection, PreparedStatement preparedStatement, ResultSet result) {
         try {
             result.close();

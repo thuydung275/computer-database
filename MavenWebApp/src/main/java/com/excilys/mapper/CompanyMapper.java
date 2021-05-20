@@ -7,22 +7,22 @@ import com.excilys.model.Company;
 import com.excilys.model.Company.CompanyBuilder;
 
 public class CompanyMapper {
-	/**
-	 * 
-	 * @param result
-	 * @return
-	 * @throws SQLException
-	 */
-	public static Company setObject(ResultSet result) throws SQLException {
-		CompanyBuilder builder = new Company.CompanyBuilder();
+    /**
+     *
+     * @param result
+     * @return Company
+     * @throws SQLException
+     */
+    public static Company setObject(ResultSet result) throws SQLException {
+        CompanyBuilder builder = new Company.CompanyBuilder();
 
-		builder.setId(result.getInt("company.id"));
-		
-		if (result.getString("company.name") != null) {
-			builder.setName(result.getString("company.name"));
-		}
-		
-		Company Company = builder.build();
-		return Company;
-	}
+        builder.setId(result.getInt("company.id"));
+
+        if (result.getString("company.name") != null) {
+            builder.setName(result.getString("company.name"));
+        }
+
+        Company company = builder.build();
+        return company;
+    }
 }
