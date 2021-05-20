@@ -13,9 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.excilys.connection.ConnectionHelper;
 import com.excilys.connection.DBConnection;
-import com.excilys.mapper.CompanyMapper;
 import com.excilys.mapper.ComputerMapper;
-import com.excilys.model.Company;
 import com.excilys.model.Computer;
 import com.excilys.service.Pagination;
 

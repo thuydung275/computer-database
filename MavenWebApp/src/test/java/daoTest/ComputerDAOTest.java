@@ -3,6 +3,8 @@ package daoTest;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.log4j.Logger;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -12,7 +14,9 @@ import com.excilys.model.*;
 import com.excilys.service.Pagination;
 
 public class ComputerDAOTest {
+	
 	private static ComputerDAO computerInstance;
+	private static Logger log = Logger.getLogger(CompanyDAOTest.class);
 	
 	private static final int TOTAL_COMPUTER = 574;
     private static final int FIND_COMPUTER_BY_ID = 13;
@@ -28,8 +32,7 @@ public class ComputerDAOTest {
 	}
     
     @Test
-	public void testFindByCriteria() {
-    	// find by id
+	public void testFindById() {
     	Optional<Computer> opt = computerInstance.findById(FIND_COMPUTER_BY_ID);
 		if (opt.isPresent()) {
 			Assert.assertEquals(FIND_COMPUTER_BY_ID, opt.get().getId());
@@ -40,9 +43,11 @@ public class ComputerDAOTest {
 		
 		opt = computerInstance.findById(TOTAL_COMPUTER + 1);
 		Assert.assertFalse(opt.isPresent());
-		
-		// find by name
-		opt = computerInstance.findByName(FIND_COMPUTER_BY_NAME);
+    }
+    
+    @Test
+	public void testFindByName() {
+    	Optional<Computer> opt = computerInstance.findByName(FIND_COMPUTER_BY_NAME);
 		if (opt.isPresent()) {
 			Assert.assertEquals(FIND_COMPUTER_BY_NAME, opt.get().getName());
 		} else {
@@ -54,16 +59,19 @@ public class ComputerDAOTest {
     }
     
     @Test
-	public void testGetList() {
-    	// get total computer
+	public void testGetComputerList() {
 		List<Computer> computerList = computerInstance.getList();
 		if (!computerList.isEmpty()) {
 			Assert.assertEquals(TOTAL_COMPUTER, computerList.size());
 		} else {
 			Assert.fail("Fails to find total number of computer !");
 		}
-		
-		// get list per page
+    }
+    
+    @Test
+	public void testGetComputerListPerPage() {
+    	List<Computer> computerList = computerInstance.getList();
+
 		Pagination page = new Pagination(computerList.size());
 		List<Computer> computerListPerPage = computerInstance.getListPerPage(page);
 		if (!computerListPerPage.isEmpty()) {
@@ -76,33 +84,47 @@ public class ComputerDAOTest {
     }
     
     @Test
-	public void testCreateUpdateDelete() {
-    	List<Computer> computerList = computerInstance.getList();
-    	
-    	// create
+	public void testCreateComputer() {
     	Computer computerToCreate = new Computer.ComputerBuilder().setName(NEW_COMPUTER_NAME).build();
     	Computer createdComputer = computerInstance.create(computerToCreate);
-		if (createdComputer != null) {
-			Assert.assertEquals(computerList.size() + 1, createdComputer.getId());
+    	Optional<Computer> createdComputerFromDB = computerInstance.findByName(NEW_COMPUTER_NAME);
+		if (createdComputerFromDB.isPresent()) {
+			Assert.assertEquals(createdComputer.getId(), createdComputerFromDB.get().getId());
+			computerInstance.delete(createdComputerFromDB.get().getId());
 		} else {
 			Assert.fail("Fails to create new computer !");
 		}
-		
-		//update
+    }
+    
+    @Test
+	public void testUpdateComputer() {
+    	Computer computerToCreate = new Computer.ComputerBuilder().setName(NEW_COMPUTER_NAME).build();
+    	Computer createdComputer = computerInstance.create(computerToCreate);
 		createdComputer.setName(UPDATE_COMPUTER_NAME);
 		computerInstance.update(createdComputer);
 		Optional<Computer> opt = computerInstance.findByName(UPDATE_COMPUTER_NAME);
 		if(opt.isPresent()) {
 			Assert.assertEquals(UPDATE_COMPUTER_NAME, opt.get().getName());
+			computerInstance.delete(opt.get().getId());
 		} else {
 			Assert.fail("Fails to update computer !");
 		}
-		
-		//delete
+    }
+    
+    @Test
+	public void testDeleteComputer() {
+    	computerInstance.create(new Computer.ComputerBuilder().setName(NEW_COMPUTER_NAME).build());
+    	Optional<Computer> opt = computerInstance.findByName(NEW_COMPUTER_NAME);
 		boolean deleted = computerInstance.delete(opt.get().getId());
 		Assert.assertTrue(deleted);
 		
 		deleted = computerInstance.delete(TOTAL_COMPUTER + 1);
 		Assert.assertFalse(deleted);
+    }
+    
+    @AfterClass
+    public static void terminate() throws Exception {
+    	computerInstance = null;
+        System.setProperty("test","false");
     }
 }

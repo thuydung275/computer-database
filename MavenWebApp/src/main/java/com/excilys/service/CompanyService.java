@@ -17,6 +17,10 @@ public class CompanyService {
 	
 	private static CompanyDAO companyInstance = CompanyDAO.getInstance();
 	
+	public void setCompanyInstance(CompanyDAO companyInstance) {
+		this.companyInstance = companyInstance;
+	}
+	
 	/**
 	 * 
 	 * @param name

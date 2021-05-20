@@ -3,6 +3,7 @@ package com.excilys.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.excilys.dao.CompanyDAO;
 import com.excilys.dao.ComputerDAO;
 import com.excilys.helper.Constant;
 import com.excilys.helper.CustomException;
@@ -18,6 +19,14 @@ public class ComputerService {
 	
 	private static ComputerDAO computerInstance = ComputerDAO.getInstance();
 	private static CompanyService companyService  = new CompanyService();
+	
+	public void setComputerInstance(ComputerDAO computerInstance) {
+		this.computerInstance = computerInstance;
+	}
+	
+	public void setCompanyInstance(CompanyDAO companyInstance) {
+		this.companyService.setCompanyInstance(companyInstance);
+	}
 	
 	/**
 	 * 
@@ -64,7 +73,7 @@ public class ComputerService {
 		}
 		if (computer.getCompany() != null) {
 			if (computer.getCompany().getId() != 0) {
-				Company company = companyService.findById(computer.getCompany().getId());
+				companyService.findById(computer.getCompany().getId());
 			} else {
 				throw new CustomException("company does not exist in our database", Constant.ER_NOT_FOUND);
 			}

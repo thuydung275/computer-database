@@ -3,11 +3,13 @@ package daoTest;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.excilys.connection.DBConnection;
 import com.excilys.dao.CompanyDAO;
 import com.excilys.model.Company;
 import com.excilys.service.Pagination;
@@ -15,6 +17,7 @@ import com.excilys.service.Pagination;
 public class CompanyDAOTest {
 	
 	private static CompanyDAO companyInstance;
+	private static Logger log = Logger.getLogger(CompanyDAOTest.class);
 	
 	private static final int TOTAL_COMPANY = 42;
     private static final String FIND_COMPANY_BY_NAME = "IBM";
@@ -30,8 +33,7 @@ public class CompanyDAOTest {
 	}
 	
 	@Test
-	public void testFindByCriteria() {
-		// find by id
+	public void testFindById() {
 		Optional<Company> opt = companyInstance.findById(FIND_COMPANY_BY_ID);
 		if (opt.isPresent()) {
 			Assert.assertEquals(FIND_COMPANY_BY_ID, opt.get().getId());
@@ -41,9 +43,11 @@ public class CompanyDAOTest {
 		
 		opt = companyInstance.findById(TOTAL_COMPANY + 1);
 		Assert.assertFalse(opt.isPresent());
-		
-		// find by name
-		opt = companyInstance.findByName(FIND_COMPANY_BY_NAME);
+	}
+	
+	@Test
+	public void testFindByName() {
+		Optional<Company> opt = companyInstance.findByName(FIND_COMPANY_BY_NAME);
 		if (opt.isPresent()) {
 			Assert.assertEquals(FIND_COMPANY_BY_NAME, opt.get().getName());
 		} else {
@@ -55,16 +59,19 @@ public class CompanyDAOTest {
 	}
 	
 	@Test
-	public void testGetList() {
-		// get total company
+	public void testGetCompanyList() {
 		List<Company> companyList = companyInstance.getList();
 		if (!companyList.isEmpty()) {
 			Assert.assertEquals(TOTAL_COMPANY, companyList.size());
 		} else {
 			Assert.fail("Fails to find total number of company !");
 		}
+	}
+	
+	@Test
+	public void testGetCompanyListPerPage() {
+		List<Company> companyList = companyInstance.getList();
 		
-		// get list per page
 		Pagination page = new Pagination(companyList.size());
 		List<Company> companyListPerPage = companyInstance.getListPerPage(page);
 		if (!companyListPerPage.isEmpty()) {
@@ -77,32 +84,39 @@ public class CompanyDAOTest {
 	}
 	
 	@Test
-	public void testCreateUpdateDelete() {
-		List<Company> companyList = companyInstance.getList();
-		
-		// create
+	public void testCreateCompany() {
 		Company companyToCreate = new Company.CompanyBuilder().setName(NEW_COMPANY_NAME).build();
 		Company createdCompany = companyInstance.create(companyToCreate);
-		if (createdCompany != null) {
-			Assert.assertEquals(companyList.size() + 1, createdCompany.getId());
+		Optional<Company> createdCompanyFromDB = companyInstance.findByName(NEW_COMPANY_NAME);
+		if (createdCompanyFromDB.isPresent()) {
+			Assert.assertEquals(createdCompany.getId(), createdCompanyFromDB.get().getId());
+			companyInstance.delete(createdCompanyFromDB.get().getId());
 		} else {
 			Assert.fail("Fails to create new company !");
 		}
-		
-		// update
+	}
+	
+	@Test
+	public void testUpdateCompany() {
+		Company createdCompany = companyInstance.create(new Company.CompanyBuilder().setName(NEW_COMPANY_NAME).build());
 		createdCompany.setName(UPDATE_COMPANY_NAME);
 		companyInstance.update(createdCompany);
 		Optional<Company> opt = companyInstance.findByName(UPDATE_COMPANY_NAME);
 		if(opt.isPresent()) {
 			Assert.assertEquals(UPDATE_COMPANY_NAME, opt.get().getName());
+			companyInstance.delete(opt.get().getId());
 		} else {
 			Assert.fail("Fails to update company !");
 		}
-		
-		//delete
+	}
+	
+	@Test
+	public void testDeleteCompany() {
+		companyInstance.create(new Company.CompanyBuilder().setName(NEW_COMPANY_NAME).build());
+		Optional<Company> opt = companyInstance.findByName(NEW_COMPANY_NAME);
 		boolean deleted = companyInstance.delete(opt.get().getId());
 		Assert.assertTrue(deleted);
-		
+
 		deleted = companyInstance.delete(TOTAL_COMPANY + 1);
 		Assert.assertFalse(deleted);
 	}
