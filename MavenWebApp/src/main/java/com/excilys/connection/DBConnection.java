@@ -9,8 +9,7 @@ import javax.sql.DataSource;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.log4j.Logger;
 
-import com.excilys.helper.Constant;
-import com.excilys.helper.CustomException;
+import com.excilys.validator.CustomException;
 
 public class DBConnection {
 
@@ -48,17 +47,18 @@ public class DBConnection {
         static {
             Properties properties = new Properties();
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            InputStream configFile = classLoader.getResourceAsStream(Constant.DBCONFIGFILE);
+            InputStream configFile = classLoader.getResourceAsStream(ConnectionConstant.DBCONFIGFILE);
             if (configFile == null) {
                 throw new CustomException("Config file empty !", 0);
             }
             try {
                 properties.load(configFile);
-                SingletonHolder.url = properties.getProperty(Constant.URL);
-                SingletonHolder.driver = properties.getProperty(Constant.DRIVER);
-                SingletonHolder.username = properties.getProperty(Constant.USERNAME);
-                SingletonHolder.password = properties.getProperty(Constant.PASSWORD);
+                SingletonHolder.url = properties.getProperty(ConnectionConstant.URL);
+                SingletonHolder.driver = properties.getProperty(ConnectionConstant.DRIVER);
+                SingletonHolder.username = properties.getProperty(ConnectionConstant.USERNAME);
+                SingletonHolder.password = properties.getProperty(ConnectionConstant.PASSWORD);
             } catch (IOException ex) {
+                log.error(ex);
                 throw new CustomException(ex.getMessage(), 0);
             }
         }

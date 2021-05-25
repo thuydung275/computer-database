@@ -4,9 +4,9 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Dashboard</title>
+ <title>Test</title>
 </head>
 <body>
-         <p>Ceci est une page générée depuis une JSP.</p>
+<p>Ceci est une page générée depuis une JSP.</p>
 </body>
 </html>

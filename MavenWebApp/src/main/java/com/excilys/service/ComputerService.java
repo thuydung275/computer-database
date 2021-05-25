@@ -5,9 +5,8 @@ import java.util.Optional;
 
 import com.excilys.dao.CompanyDAO;
 import com.excilys.dao.ComputerDAO;
-import com.excilys.helper.Constant;
-import com.excilys.helper.CustomException;
 import com.excilys.model.Computer;
+import com.excilys.validator.CustomException;
 
 /**
  *
@@ -24,7 +23,7 @@ public class ComputerService {
      * @param computerInstance
      */
     public void setComputerInstance(ComputerDAO computerInstance) {
-        this.computerInstance = computerInstance;
+        ComputerService.computerInstance = computerInstance;
     }
 
     /**
@@ -32,7 +31,7 @@ public class ComputerService {
      * @param companyInstance
      */
     public void setCompanyInstance(CompanyDAO companyInstance) {
-        this.companyService.setCompanyInstance(companyInstance);
+        ComputerService.companyService.setCompanyInstance(companyInstance);
     }
 
     /**
@@ -62,7 +61,7 @@ public class ComputerService {
         if (opt.isPresent()) {
             return opt.get();
         }
-        throw new CustomException(id + Constant.TEXT_ER_NOT_FOUND, Constant.ER_NOT_FOUND);
+        throw new CustomException(id + CustomException.TEXT_ER_NOT_FOUND, CustomException.ER_NOT_FOUND);
     }
 
     /**
@@ -71,20 +70,12 @@ public class ComputerService {
      * @return Computer
      */
     public Computer create(Computer computer) {
-        if (computer.getIntroduced() != null && computer.getDiscontinued() != null) {
-            if (computer.getDiscontinued().compareTo(computer.getIntroduced()) < 0) {
-                throw new CustomException("discontinued date is smaller then introduced date",
-                        Constant.ER_INTRODUCED_BIGGER_DISCONTINUED);
-            }
-        } else if (computer.getDiscontinued() != null && computer.getIntroduced() == null) {
-            throw new CustomException("introduced date is null while discontinued date is not null",
-                    Constant.ER_DISCONTINUED_NULL_INTRODUCED_NOT_NULL);
-        }
+        validateDate(computer);
         if (computer.getCompany() != null) {
             if (computer.getCompany().getId() != 0) {
                 companyService.findById(computer.getCompany().getId());
             } else {
-                throw new CustomException("company does not exist in our database", Constant.ER_NOT_FOUND);
+                throw new CustomException("company does not exist in our database", CustomException.ER_NOT_FOUND);
             }
         }
         return computerInstance.create(computer);
@@ -98,20 +89,25 @@ public class ComputerService {
     public Computer update(Computer computer) {
         Optional<Computer> computerFromDB = computerInstance.findById(computer.getId());
         if (!computerFromDB.isPresent()) {
-            throw new CustomException("Computer does not exist in our database", Constant.ER_NOT_FOUND);
+            throw new CustomException("Computer does not exist in our database", CustomException.ER_NOT_FOUND);
         }
 
+        validateDate(computer);
+        return computerInstance.update(computer);
+
+    }
+
+    private void validateDate(Computer computer) {
         if (computer.getIntroduced() != null && computer.getDiscontinued() != null) {
             if (computer.getDiscontinued().compareTo(computer.getIntroduced()) < 0) {
                 throw new CustomException("discontinued date is smaller then introduced date",
-                        Constant.ER_INTRODUCED_BIGGER_DISCONTINUED);
+                        CustomException.ER_INTRODUCED_BIGGER_DISCONTINUED);
             }
         } else if (computer.getDiscontinued() != null && computer.getIntroduced() == null) {
             throw new CustomException("introduced date is null while discontinued date is not null",
-                    Constant.ER_DISCONTINUED_NULL_INTRODUCED_NOT_NULL);
+                    CustomException.ER_DISCONTINUED_NULL_INTRODUCED_NOT_NULL);
         }
-        return computerInstance.update(computer);
-
+        return;
     }
 
     /**
@@ -122,7 +118,7 @@ public class ComputerService {
     public boolean remove(Computer computer) {
         Optional<Computer> computerFromDB = computerInstance.findById(computer.getId());
         if (!computerFromDB.isPresent()) {
-            throw new CustomException("Computer does not exist in our database", Constant.ER_NOT_FOUND);
+            throw new CustomException("Computer does not exist in our database", CustomException.ER_NOT_FOUND);
         }
         return computerInstance.delete(computer.getId());
     }

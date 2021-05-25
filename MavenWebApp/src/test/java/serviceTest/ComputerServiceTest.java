@@ -26,150 +26,149 @@ import org.mockito.MockitoAnnotations;
 
 import com.excilys.dao.CompanyDAO;
 import com.excilys.dao.ComputerDAO;
-import com.excilys.helper.Constant;
-import com.excilys.helper.CustomException;
 import com.excilys.model.Company;
 import com.excilys.model.Computer;
 import com.excilys.service.ComputerService;
 import com.excilys.service.Pagination;
+import com.excilys.validator.CustomException;
 
 public class ComputerServiceTest {
 
-	private static Logger log = Logger.getLogger(ComputerServiceTest.class);
+    private static Logger log = Logger.getLogger(ComputerServiceTest.class);
 
-	@Mock
-	ComputerDAO computerDao;
+    @Mock
+    ComputerDAO computerDao;
 
-	@Mock
-	CompanyDAO companyDao;
+    @Mock
+    CompanyDAO companyDao;
 
-	@InjectMocks
-	ComputerService computerService;
+    @InjectMocks
+    ComputerService computerService;
 
-	private Computer trueComputer;
-	private Company trueCompany;
+    private Computer trueComputer;
+    private Company trueCompany;
 
-	private static final int FAKE_COMPUTER_ID = 1242354;
-	private static final String FAKE_COMPUTER_NAME = "fake name";
-	private static final int TOTAL_COMPUTER = 574;
-	private static final int FIND_COMPUTER_BY_ID = 1;
-	private static final String FIND_COMPUTER_BY_NAME = "Apple Inc.";
-	private static final int LIMIT_PER_PAGE = 3;
-	private static final int PAGE_NUMBER = 1;
+    private static final int FAKE_COMPUTER_ID = 1242354;
+    private static final String FAKE_COMPUTER_NAME = "fake name";
+    private static final int TOTAL_COMPUTER = 574;
+    private static final int FIND_COMPUTER_BY_ID = 1;
+    private static final String FIND_COMPUTER_BY_NAME = "Apple Inc.";
+    private static final int LIMIT_PER_PAGE = 3;
+    private static final int PAGE_NUMBER = 1;
 
-	@Before
-	public void init() {
-		MockitoAnnotations.initMocks(this);
-		computerService.setComputerInstance(computerDao);
-		computerService.setCompanyInstance(companyDao);
-		trueCompany = new Company.CompanyBuilder().setId(1).setName("Apple Inc.").build();
-		trueComputer = new Computer.ComputerBuilder().setId(1).setName("MacBook Pro 15.4 inch").setCompany(trueCompany)
-				.build();
-	}
+    @Before
+    public void init() {
+        MockitoAnnotations.initMocks(this);
+        computerService.setComputerInstance(computerDao);
+        computerService.setCompanyInstance(companyDao);
+        trueCompany = new Company.CompanyBuilder().setId(1).setName("Apple Inc.").build();
+        trueComputer = new Computer.ComputerBuilder().setId(1).setName("MacBook Pro 15.4 inch").setCompany(trueCompany)
+                .build();
+    }
 
-	@Rule
-	public ExpectedException exceptionRule = ExpectedException.none();
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
 
-	@Test
-	public void testFindComputerById() {
-		when(computerDao.findById(FIND_COMPUTER_BY_ID)).thenReturn(Optional.of(trueComputer));
-		Assert.assertEquals(computerService.findById(FIND_COMPUTER_BY_ID), trueComputer);
-		verify(computerDao).findById(FIND_COMPUTER_BY_ID);
+    @Test
+    public void testFindComputerById() {
+        when(computerDao.findById(FIND_COMPUTER_BY_ID)).thenReturn(Optional.of(trueComputer));
+        Assert.assertEquals(computerService.findById(FIND_COMPUTER_BY_ID), trueComputer);
+        verify(computerDao).findById(FIND_COMPUTER_BY_ID);
 
-		when(computerDao.findById(FAKE_COMPUTER_ID)).thenReturn(Optional.ofNullable(null));
-		exceptionRule.expect(CustomException.class);
-		exceptionRule.expectMessage(FAKE_COMPUTER_ID + Constant.TEXT_ER_NOT_FOUND);
-		computerService.findById(FAKE_COMPUTER_ID);
-		verify(computerDao).findById(FAKE_COMPUTER_ID);
-	}
+        when(computerDao.findById(FAKE_COMPUTER_ID)).thenReturn(Optional.ofNullable(null));
+        exceptionRule.expect(CustomException.class);
+        exceptionRule.expectMessage(FAKE_COMPUTER_ID + CustomException.TEXT_ER_NOT_FOUND);
+        computerService.findById(FAKE_COMPUTER_ID);
+        verify(computerDao).findById(FAKE_COMPUTER_ID);
+    }
 
-	@Test
-	public void testGetListComputers() {
-		List<Computer> computers = new ArrayList<>(Arrays.asList(trueComputer, trueComputer));
-		when(computerDao.getList()).thenReturn(computers);
-		List<Computer> computerList = computerService.getListComputers();
-		assertFalse(computerList.isEmpty());
-		verify(computerDao).getList();
-	}
+    @Test
+    public void testGetListComputers() {
+        List<Computer> computers = new ArrayList<>(Arrays.asList(trueComputer, trueComputer));
+        when(computerDao.getList()).thenReturn(computers);
+        List<Computer> computerList = computerService.getListComputers();
+        assertFalse(computerList.isEmpty());
+        verify(computerDao).getList();
+    }
 
-	@Test
-	public void testGetListComputersPerPage() {
-		Pagination pagination = new Pagination(LIMIT_PER_PAGE, PAGE_NUMBER, TOTAL_COMPUTER);
-		List<Computer> computers = new ArrayList<>(Arrays.asList(trueComputer, trueComputer, trueComputer));
+    @Test
+    public void testGetListComputersPerPage() {
+        Pagination pagination = new Pagination(LIMIT_PER_PAGE, PAGE_NUMBER, TOTAL_COMPUTER);
+        List<Computer> computers = new ArrayList<>(Arrays.asList(trueComputer, trueComputer, trueComputer));
 
-		when(computerDao.getListPerPage(pagination)).thenReturn(computers);
-		List<Computer> firstPage = computerService.getListPerPage(pagination);
-		verify(computerDao).getListPerPage(pagination);
-		assertTrue(firstPage.size() == pagination.getLimit());
-		assertTrue(firstPage.get(0).getId() == 1);
-	}
+        when(computerDao.getListPerPage(pagination)).thenReturn(computers);
+        List<Computer> firstPage = computerService.getListPerPage(pagination);
+        verify(computerDao).getListPerPage(pagination);
+        assertTrue(firstPage.size() == pagination.getLimit());
+        assertTrue(firstPage.get(0).getId() == 1);
+    }
 
-	@Test(expected = CustomException.class)
-	public void testAddComputer() {
-		Computer mockComputer = new Computer.ComputerBuilder().setName("mock computer").setCompany(trueCompany).build();
-		when(computerDao.create(mockComputer)).thenReturn(mockComputer);
-		assertThat(computerService.create(mockComputer), is(notNullValue()));
-		verify(computerDao).create(mockComputer);
+    @Test(expected = CustomException.class)
+    public void testAddComputer() {
+        Computer mockComputer = new Computer.ComputerBuilder().setName("mock computer").setCompany(trueCompany).build();
+        when(computerDao.create(mockComputer)).thenReturn(mockComputer);
+        assertThat(computerService.create(mockComputer), is(notNullValue()));
+        verify(computerDao).create(mockComputer);
 
-		int fakeCompanyId = 1234314;
-		Company fakeCompany = new Company.CompanyBuilder().setId(fakeCompanyId).build();
-		Computer mockComputer1 = new Computer.ComputerBuilder().setName("mock computer").setCompany(fakeCompany)
-				.build();
-		when(computerDao.create(mockComputer)).thenThrow(CustomException.class);
-		computerService.create(mockComputer1);
-		verify(computerDao).create(mockComputer1);
-	}
+        int fakeCompanyId = 1234314;
+        Company fakeCompany = new Company.CompanyBuilder().setId(fakeCompanyId).build();
+        Computer mockComputer1 = new Computer.ComputerBuilder().setName("mock computer").setCompany(fakeCompany)
+                .build();
+        when(computerDao.create(mockComputer)).thenThrow(CustomException.class);
+        computerService.create(mockComputer1);
+        verify(computerDao).create(mockComputer1);
+    }
 
-	@Test
-	public void testUpdateComputer() {
-		Computer mockComputer = Computer.copy(trueComputer);
-		mockComputer.setName("mock computer");
-		when(computerDao.update(mockComputer)).thenReturn(mockComputer);
+    @Test
+    public void testUpdateComputer() {
+        Computer mockComputer = Computer.copy(trueComputer);
+        mockComputer.setName("mock computer");
+        when(computerDao.update(mockComputer)).thenReturn(mockComputer);
 
-		when(computerDao.findById(mockComputer.getId())).thenReturn(Optional.ofNullable(null));
-		exceptionRule.expect(CustomException.class);
-		exceptionRule.expectMessage("Computer does not exist in our database");
-		computerService.update(mockComputer);
-		verify(computerDao).update(mockComputer);
-		verify(computerDao).findById(mockComputer.getId());
+        when(computerDao.findById(mockComputer.getId())).thenReturn(Optional.ofNullable(null));
+        exceptionRule.expect(CustomException.class);
+        exceptionRule.expectMessage("Computer does not exist in our database");
+        computerService.update(mockComputer);
+        verify(computerDao).update(mockComputer);
+        verify(computerDao).findById(mockComputer.getId());
 
-		when(computerDao.findById(mockComputer.getId())).thenReturn(Optional.of(mockComputer));
+        when(computerDao.findById(mockComputer.getId())).thenReturn(Optional.of(mockComputer));
 
-		mockComputer.setDiscontinued(LocalDate.of(2000, 1, 1));
-		exceptionRule.expect(CustomException.class);
-		exceptionRule.expectMessage("introduced date is null while discontinued date is not null");
-		computerService.update(mockComputer);
-		verify(computerDao).update(mockComputer);
-		verify(computerDao).findById(mockComputer.getId());
+        mockComputer.setDiscontinued(LocalDate.of(2000, 1, 1));
+        exceptionRule.expect(CustomException.class);
+        exceptionRule.expectMessage("introduced date is null while discontinued date is not null");
+        computerService.update(mockComputer);
+        verify(computerDao).update(mockComputer);
+        verify(computerDao).findById(mockComputer.getId());
 
-		mockComputer.setIntroduced(LocalDate.now());
-		exceptionRule.expect(CustomException.class);
-		exceptionRule.expectMessage("discontinued date is smaller then introduced date");
-		computerService.update(mockComputer);
-		verify(computerDao).update(mockComputer);
-		verify(computerDao).findById(mockComputer.getId());
+        mockComputer.setIntroduced(LocalDate.now());
+        exceptionRule.expect(CustomException.class);
+        exceptionRule.expectMessage("discontinued date is smaller then introduced date");
+        computerService.update(mockComputer);
+        verify(computerDao).update(mockComputer);
+        verify(computerDao).findById(mockComputer.getId());
 
-		assertThat(computerService.update(mockComputer), is(mockComputer));
-		verify(computerDao).update(mockComputer);
-		verify(computerDao).findById(mockComputer.getId());
-	}
+        assertThat(computerService.update(mockComputer), is(mockComputer));
+        verify(computerDao).update(mockComputer);
+        verify(computerDao).findById(mockComputer.getId());
+    }
 
-	@Test
-	public void testDeleteComputer() {
-		Computer mockComputer = Computer.copy(trueComputer);
-		mockComputer.setName("mock computer");
+    @Test
+    public void testDeleteComputer() {
+        Computer mockComputer = Computer.copy(trueComputer);
+        mockComputer.setName("mock computer");
 
-		when(computerDao.delete(mockComputer.getId())).thenReturn(true);
-		when(computerDao.findById(mockComputer.getId())).thenReturn(Optional.ofNullable(null));
-		exceptionRule.expect(CustomException.class);
-		exceptionRule.expectMessage("Computer does not exist in our database");
-		computerService.remove(mockComputer);
-		verify(computerDao).delete(mockComputer.getId());
+        when(computerDao.delete(mockComputer.getId())).thenReturn(true);
+        when(computerDao.findById(mockComputer.getId())).thenReturn(Optional.ofNullable(null));
+        exceptionRule.expect(CustomException.class);
+        exceptionRule.expectMessage("Computer does not exist in our database");
+        computerService.remove(mockComputer);
+        verify(computerDao).delete(mockComputer.getId());
 
-		when(computerDao.delete(mockComputer.getId())).thenReturn(true);
-		when(computerDao.findById(mockComputer.getId())).thenReturn(Optional.ofNullable(mockComputer));
-		assertTrue(computerService.remove(mockComputer));
-		verify(computerDao).delete(mockComputer.getId());
-	}
+        when(computerDao.delete(mockComputer.getId())).thenReturn(true);
+        when(computerDao.findById(mockComputer.getId())).thenReturn(Optional.ofNullable(mockComputer));
+        assertTrue(computerService.remove(mockComputer));
+        verify(computerDao).delete(mockComputer.getId());
+    }
 
 }

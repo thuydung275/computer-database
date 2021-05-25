@@ -4,9 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import com.excilys.dao.CompanyDAO;
-import com.excilys.helper.Constant;
-import com.excilys.helper.CustomException;
 import com.excilys.model.Company;
+import com.excilys.validator.CustomException;
 
 /**
  *
@@ -18,7 +17,7 @@ public class CompanyService {
     private static CompanyDAO companyInstance = CompanyDAO.getInstance();
 
     public void setCompanyInstance(CompanyDAO companyInstance) {
-        this.companyInstance = companyInstance;
+        CompanyService.companyInstance = companyInstance;
     }
 
     /**
@@ -31,7 +30,7 @@ public class CompanyService {
         if (opt.isPresent()) {
             return opt.get();
         }
-        throw new CustomException(name + Constant.TEXT_ER_NOT_FOUND, Constant.ER_NOT_FOUND);
+        throw new CustomException(name + CustomException.TEXT_ER_NOT_FOUND, CustomException.ER_NOT_FOUND);
     }
 
     /**
@@ -44,7 +43,7 @@ public class CompanyService {
         if (opt.isPresent()) {
             return opt.get();
         }
-        throw new CustomException(id + Constant.TEXT_ER_NOT_FOUND, Constant.ER_NOT_FOUND);
+        throw new CustomException(id + CustomException.TEXT_ER_NOT_FOUND, CustomException.ER_NOT_FOUND);
     }
 
     /**
@@ -53,6 +52,14 @@ public class CompanyService {
      */
     public List<Company> getListCompanies() {
         return companyInstance.getList();
+    }
+
+    /**
+     *
+     * @return number of total companies
+     */
+    public int getCompanyNumber() {
+        return companyInstance.getList().size();
     }
 
     /**
