@@ -20,7 +20,7 @@ import com.excilys.service.ComputerService;
 import com.excilys.validator.ComputerValidator;
 import com.excilys.validator.CustomException;
 
-@WebServlet(name = "AddComputerServlet", urlPatterns = { "/computer/add", "/addComputer" })
+@WebServlet(name = "AddComputerServlet", urlPatterns = { "/computer/add" })
 public class AddComputerServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static Logger log = Logger.getLogger(AddComputerServlet.class);

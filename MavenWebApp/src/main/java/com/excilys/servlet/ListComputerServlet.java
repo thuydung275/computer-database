@@ -15,7 +15,7 @@ import com.excilys.model.Computer;
 import com.excilys.service.ComputerService;
 import com.excilys.service.Pagination;
 
-@WebServlet(name = "ListComputerServlet", urlPatterns = { "/computer/list", "/listComputer", "/dashboard" })
+@WebServlet(name = "ListComputerServlet", urlPatterns = { "/computer/list" })
 public class ListComputerServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static ComputerService computerService = new ComputerService();

@@ -14,7 +14,7 @@
 <body>
     <header class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="dashboard"> Application - Computer Database </a>
+            <a class="navbar-brand" href="${pageContext.request.contextPath}/computer/list"> Application - Computer Database </a>
         </div>
     </header>
 
@@ -35,19 +35,22 @@
 					  <c:out value="${error}" />
 					</div>
 					</c:if>
-                    <form action="addComputer" method="POST">
+                    <form action="${pageContext.request.contextPath}/computer/add" method="POST" id="addComputer">
                         <fieldset>
                             <div class="form-group">
-                                <label for="computerName">Computer name</label>
+                                <label class="control-label" for="computerName">Computer name</label>
                                 <input type="text" class="form-control" id="computerName" name="computerName" placeholder="Computer name">
+                                <span class="help-block hidden">Computer name must not be empty</span>
                             </div>
                             <div class="form-group">
-                                <label for="introduced">Introduced date</label>
+                                <label class="control-label" for="introduced">Introduced date</label>
                                 <input type="date" class="form-control" id="introduced" name="introduced" placeholder="Introduced date">
+                                <span class="help-block hidden">Introduced date must not be empty when discontinued date exist !</span>
                             </div>
                             <div class="form-group">
-                                <label for="discontinued">Discontinued date</label>
+                                <label class="control-label" for="discontinued">Discontinued date</label>
                                 <input type="date" class="form-control" id="discontinued" name="discontinued" placeholder="Discontinued date">
+                                <span class="help-block hidden">Discontinued date must be greater than introduced date !</span>
                             </div>
                             <div class="form-group">
                                 <label for="companyId">Company</label>
@@ -60,9 +63,9 @@
                             </div>                  
                         </fieldset>
                         <div class="actions pull-right">
-                            <input type="submit" value="Add" class="btn btn-primary">
+                            <input type="submit" value="Add" class="btn btn-primary disabled" id="submitBtn">
                             or
-                            <a href="dashboard" class="btn btn-default">Cancel</a>
+                            <a href="${pageContext.request.contextPath}/computer/list" class="btn btn-default">Cancel</a>
                         </div>
                     </form>
                 </div>
@@ -70,4 +73,7 @@
         </div>
     </section>
 </body>
+<script src="${pageContext.request.contextPath}/js/jquery.min.js"></script>
+<script src="${pageContext.request.contextPath}/js/bootstrap.min.js"></script>
+<script src="${pageContext.request.contextPath}/js/addComputerForm.js"></script>
 </html>
