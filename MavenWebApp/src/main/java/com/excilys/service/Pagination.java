@@ -7,7 +7,7 @@ public class Pagination {
     private int totalItem;
 
     // show 25 item per page by default
-    private static final int DEFAULT_LIMIT = 25;
+    private static final int DEFAULT_LIMIT = 10;
     private static final int DEFAULT_PAGE = 1;
 
     /**
@@ -77,4 +77,10 @@ public class Pagination {
             this.page--;
         }
     }
+
+    @Override
+    public String toString() {
+        return "Pagination [limit=" + limit + ", page=" + page + ", totalItem=" + totalItem + "]";
+    }
+
 }

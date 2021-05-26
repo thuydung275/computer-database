@@ -7,7 +7,7 @@
   <groupId>com.excilys</groupId>
   <artifactId>MavenWebApp</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+  <packaging>war</packaging>
 
   <name>MavenWebApp Maven Webapp</name>
   <!-- FIXME change it to the project's website -->
@@ -21,9 +21,12 @@
     <servlet-api.version>4.0.0</servlet-api.version>
     <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
     <mysql.version>8.0.24</mysql.version>
+    <mybatis.version>3.4.5</mybatis.version>
     <commons-dbcp.version>1.4</commons-dbcp.version>
+    <commons-lang3.servion>3.11</commons-lang3.servion>
     <h2.version>1.4.199</h2.version>
     <junit.version>4.12</junit.version>
+    <jstl.version>1.2</jstl.version>
     <mockito.version>3.2.4</mockito.version>
     <slf4j-log4j12.version>1.7.25</slf4j-log4j12.version>
   </properties>
@@ -35,6 +38,12 @@
 	    <version>${servlet-api.version}</version>
 	    <scope>provided</scope>
 	</dependency>
+	
+   <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>jstl</artifactId>
+        <version>${jstl.version}</version>
+    </dependency>
 	
   	<dependency>
         <groupId>mysql</groupId>
@@ -73,6 +82,18 @@
        <artifactId>slf4j-log4j12</artifactId>
        <version>${slf4j-log4j12.version}</version>
    	</dependency>
+   	
+   	<dependency>
+   	    <groupId>org.mybatis</groupId>
+        <artifactId>mybatis</artifactId>
+	    <version>${mybatis.version}</version>
+	</dependency>
+	
+	<dependency>
+	    <groupId>org.apache.commons</groupId>
+	    <artifactId>commons-lang3</artifactId>
+	    <version>${commons-lang3.servion}</version>
+	</dependency>
    	
   </dependencies>
 

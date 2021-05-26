@@ -61,9 +61,9 @@ public class ComputerServiceTest {
         MockitoAnnotations.initMocks(this);
         computerService.setComputerInstance(computerDao);
         computerService.setCompanyInstance(companyDao);
-        trueCompany = new Company.CompanyBuilder().setId(1).setName("Apple Inc.").build();
-        trueComputer = new Computer.ComputerBuilder().setId(1).setName("MacBook Pro 15.4 inch").setCompany(trueCompany)
-                .build();
+        trueCompany = new Company.CompanyBuilder().withId(1).withName("Apple Inc.").build();
+        trueComputer = new Computer.ComputerBuilder().withId(1).withName("MacBook Pro 15.4 inch")
+                .withCompany(trueCompany).build();
     }
 
     @Rule
@@ -105,14 +105,15 @@ public class ComputerServiceTest {
 
     @Test(expected = CustomException.class)
     public void testAddComputer() {
-        Computer mockComputer = new Computer.ComputerBuilder().setName("mock computer").setCompany(trueCompany).build();
+        Computer mockComputer = new Computer.ComputerBuilder().withName("mock computer").withCompany(trueCompany)
+                .build();
         when(computerDao.create(mockComputer)).thenReturn(mockComputer);
         assertThat(computerService.create(mockComputer), is(notNullValue()));
         verify(computerDao).create(mockComputer);
 
         int fakeCompanyId = 1234314;
-        Company fakeCompany = new Company.CompanyBuilder().setId(fakeCompanyId).build();
-        Computer mockComputer1 = new Computer.ComputerBuilder().setName("mock computer").setCompany(fakeCompany)
+        Company fakeCompany = new Company.CompanyBuilder().withId(fakeCompanyId).build();
+        Computer mockComputer1 = new Computer.ComputerBuilder().withName("mock computer").withCompany(fakeCompany)
                 .build();
         when(computerDao.create(mockComputer)).thenThrow(CustomException.class);
         computerService.create(mockComputer1);

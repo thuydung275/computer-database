@@ -1,16 +1,14 @@
 package com.excilys.dto;
 
-import java.time.LocalDate;
-
 public class ComputerDTO {
 
-    private int id;
+    private String id;
     private String name;
-    private LocalDate introduced;
-    private LocalDate discontinued;
-    private int companyId;
+    private String introduced;
+    private String discontinued;
+    private String companyId;
 
-    private ComputerDTO(ComputerBuilder builder) {
+    private ComputerDTO(ComputerDTOBuilder builder) {
         this.id = builder.id;
         this.name = builder.name;
         this.introduced = builder.introduced;
@@ -18,17 +16,17 @@ public class ComputerDTO {
         this.companyId = builder.companyId;
     }
 
-    public static class ComputerBuilder {
-        private int id;
+    public static class ComputerDTOBuilder {
+        private String id;
         private String name;
-        private LocalDate introduced;
-        private LocalDate discontinued;
-        private int companyId;
+        private String introduced;
+        private String discontinued;
+        private String companyId;
 
         /**
          *
          */
-        public ComputerBuilder() {
+        public ComputerDTOBuilder() {
         };
 
         /**
@@ -36,7 +34,7 @@ public class ComputerDTO {
          * @param id
          * @return ComputerBuilder
          */
-        public ComputerBuilder setId(int id) {
+        public ComputerDTOBuilder withId(String id) {
             this.id = id;
             return this;
         }
@@ -46,7 +44,7 @@ public class ComputerDTO {
          * @param name
          * @return ComputerBuilder
          */
-        public ComputerBuilder setName(String name) {
+        public ComputerDTOBuilder withName(String name) {
             this.name = name;
             return this;
         }
@@ -56,7 +54,7 @@ public class ComputerDTO {
          * @param introduced
          * @return ComputerBuilder
          */
-        public ComputerBuilder setIntroduced(LocalDate introduced) {
+        public ComputerDTOBuilder withIntroduced(String introduced) {
             this.introduced = introduced;
             return this;
         }
@@ -66,7 +64,7 @@ public class ComputerDTO {
          * @param discontinued
          * @return ComputerBuilder
          */
-        public ComputerBuilder setDiscontinued(LocalDate discontinued) {
+        public ComputerDTOBuilder withDiscontinued(String discontinued) {
             this.discontinued = discontinued;
             return this;
         }
@@ -76,7 +74,7 @@ public class ComputerDTO {
          * @param company
          * @return ComputerBuilder
          */
-        public ComputerBuilder setCompany(int companyId) {
+        public ComputerDTOBuilder withCompanyId(String companyId) {
             this.companyId = companyId;
             return this;
         }
@@ -90,11 +88,11 @@ public class ComputerDTO {
         }
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -106,37 +104,43 @@ public class ComputerDTO {
         this.name = name;
     }
 
-    public LocalDate getIntroduced() {
+    public String getIntroduced() {
         return introduced;
     }
 
-    public void setIntroduced(LocalDate introduced) {
+    public void setIntroduced(String introduced) {
         this.introduced = introduced;
     }
 
-    public LocalDate getDiscontinued() {
+    public String getDiscontinued() {
         return discontinued;
     }
 
-    public void setDiscontinued(LocalDate discontinued) {
+    public void setDiscontinued(String discontinued) {
         this.discontinued = discontinued;
     }
 
-    public int getCompanyId() {
+    public String getCompanyId() {
         return companyId;
     }
 
-    public void setCompanyId(int companyId) {
+    public void setCompanyId(String companyId) {
         this.companyId = companyId;
+    }
+
+    @Override
+    public String toString() {
+        return "ComputerDTO [id=" + id + ", name=" + name + ", introduced=" + introduced + ", discontinued="
+                + discontinued + ", companyId=" + companyId + "]";
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + companyId;
+        result = prime * result + ((companyId == null) ? 0 : companyId.hashCode());
         result = prime * result + ((discontinued == null) ? 0 : discontinued.hashCode());
-        result = prime * result + id;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((introduced == null) ? 0 : introduced.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         return result;
@@ -151,14 +155,20 @@ public class ComputerDTO {
         if (getClass() != obj.getClass())
             return false;
         ComputerDTO other = (ComputerDTO) obj;
-        if (companyId != other.companyId)
+        if (companyId == null) {
+            if (other.companyId != null)
+                return false;
+        } else if (!companyId.equals(other.companyId))
             return false;
         if (discontinued == null) {
             if (other.discontinued != null)
                 return false;
         } else if (!discontinued.equals(other.discontinued))
             return false;
-        if (id != other.id)
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
             return false;
         if (introduced == null) {
             if (other.introduced != null)
@@ -171,12 +181,6 @@ public class ComputerDTO {
         } else if (!name.equals(other.name))
             return false;
         return true;
-    }
-
-    @Override
-    public String toString() {
-        return "ComputerDTO [id=" + id + ", name=" + name + ", introduced=" + introduced + ", discontinued="
-                + discontinued + ", companyId=" + companyId + "]";
     }
 
 }

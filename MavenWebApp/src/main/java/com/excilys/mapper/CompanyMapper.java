@@ -16,10 +16,10 @@ public class CompanyMapper {
     public static Company setObject(ResultSet result) throws SQLException {
         CompanyBuilder builder = new Company.CompanyBuilder();
 
-        builder.setId(result.getInt("company.id"));
+        builder.withId(result.getInt("company.id"));
 
         if (result.getString("company.name") != null) {
-            builder.setName(result.getString("company.name"));
+            builder.withName(result.getString("company.name"));
         }
 
         Company company = builder.build();

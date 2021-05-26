@@ -36,7 +36,7 @@ public class Computer {
          * @param id
          * @return ComputerBuilder
          */
-        public ComputerBuilder setId(int id) {
+        public ComputerBuilder withId(int id) {
             this.id = id;
             return this;
         }
@@ -46,7 +46,7 @@ public class Computer {
          * @param name
          * @return ComputerBuilder
          */
-        public ComputerBuilder setName(String name) {
+        public ComputerBuilder withName(String name) {
             this.name = name;
             return this;
         }
@@ -56,7 +56,7 @@ public class Computer {
          * @param introduced
          * @return ComputerBuilder
          */
-        public ComputerBuilder setIntroduced(LocalDate introduced) {
+        public ComputerBuilder withIntroduced(LocalDate introduced) {
             this.introduced = introduced;
             return this;
         }
@@ -66,7 +66,7 @@ public class Computer {
          * @param discontinued
          * @return ComputerBuilder
          */
-        public ComputerBuilder setDiscontinued(LocalDate discontinued) {
+        public ComputerBuilder withDiscontinued(LocalDate discontinued) {
             this.discontinued = discontinued;
             return this;
         }
@@ -76,7 +76,7 @@ public class Computer {
          * @param company
          * @return ComputerBuilder
          */
-        public ComputerBuilder setCompany(Company company) {
+        public ComputerBuilder withCompany(Company company) {
             this.company = company;
             return this;
         }
@@ -96,9 +96,9 @@ public class Computer {
      * @return Computer
      */
     public static Computer copy(Computer computer) {
-        Computer copyComputer = new Computer.ComputerBuilder().setId(computer.getId()).setName(computer.getName())
-                .setIntroduced(computer.getIntroduced()).setDiscontinued(computer.getDiscontinued())
-                .setCompany(computer.getCompany()).build();
+        Computer copyComputer = new Computer.ComputerBuilder().withId(computer.getId()).withName(computer.getName())
+                .withIntroduced(computer.getIntroduced()).withDiscontinued(computer.getDiscontinued())
+                .withCompany(computer.getCompany()).build();
         return copyComputer;
     }
 

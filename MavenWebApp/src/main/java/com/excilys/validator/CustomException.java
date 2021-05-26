@@ -46,6 +46,14 @@ public class CustomException extends RuntimeException {
 
     /**
      *
+     * @param message
+     */
+    public CustomException(String message) {
+        super(message);
+    }
+
+    /**
+     *
      * @param cause
      * @param code
      */

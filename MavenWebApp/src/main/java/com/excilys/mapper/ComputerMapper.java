@@ -2,7 +2,9 @@ package com.excilys.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 
+import com.excilys.dto.ComputerDTO;
 import com.excilys.model.Company;
 import com.excilys.model.Company.CompanyBuilder;
 import com.excilys.model.Computer;
@@ -18,31 +20,54 @@ public class ComputerMapper {
     public static Computer setObject(ResultSet result) throws SQLException {
         ComputerBuilder builder = new Computer.ComputerBuilder();
 
-        builder.setId(result.getInt("computer.id"));
+        builder.withId(result.getInt("computer.id"));
 
         if (result.getString("computer.name") != null) {
-            builder.setName(result.getString("computer.name"));
+            builder.withName(result.getString("computer.name"));
         }
 
         if (result.getDate("computer.introduced") != null) {
-            builder.setIntroduced(result.getDate("computer.introduced").toLocalDate());
+            builder.withIntroduced(result.getDate("computer.introduced").toLocalDate());
         }
 
         if (result.getDate("computer.discontinued") != null) {
-            builder.setDiscontinued(result.getDate("computer.discontinued").toLocalDate());
+            builder.withDiscontinued(result.getDate("computer.discontinued").toLocalDate());
         }
 
         // hydrate Company
         if (result.getInt("computer.company_id") != 0) {
-            CompanyBuilder companyBuilder = new Company.CompanyBuilder().setId(result.getInt("computer.company_id"));
+            CompanyBuilder companyBuilder = new Company.CompanyBuilder().withId(result.getInt("computer.company_id"));
             if (result.getString("company.name") != null) {
-                companyBuilder.setName(result.getString("company.name"));
+                companyBuilder.withName(result.getString("company.name"));
             }
             Company company = companyBuilder.build();
-            builder.setCompany(company);
+            builder.withCompany(company);
         }
 
         Computer computer = builder.build();
+        return computer;
+    }
+
+    public static Computer setObject(ComputerDTO computerDTO) {
+        Computer computer = new Computer.ComputerBuilder().build();
+
+        if (computerDTO.getId() != null && !computerDTO.getId().isEmpty()) {
+            computer.setId(Integer.parseInt(computerDTO.getId()));
+        }
+        if (computerDTO.getName() != null && !computerDTO.getName().isEmpty()) {
+            computer.setName(computerDTO.getName());
+        }
+        if (computerDTO.getIntroduced() != null && !computerDTO.getIntroduced().isEmpty()) {
+            computer.setIntroduced(LocalDate.parse(computerDTO.getIntroduced()));
+        }
+        if (computerDTO.getDiscontinued() != null && !computerDTO.getDiscontinued().isEmpty()) {
+            computer.setDiscontinued(LocalDate.parse(computerDTO.getDiscontinued()));
+        }
+        if (computerDTO.getCompanyId() != null && !computerDTO.getCompanyId().isEmpty()) {
+            Company company = new Company.CompanyBuilder().withId(Integer.parseInt(computerDTO.getCompanyId())).build();
+            computer.setCompany(company);
+        }
+
         return computer;
     }
 }

@@ -25,7 +25,7 @@ public class Company {
          * @param id
          * @return CompanyBuilder
          */
-        public CompanyBuilder setId(int id) {
+        public CompanyBuilder withId(int id) {
             this.id = id;
             return this;
         }
@@ -35,7 +35,7 @@ public class Company {
          * @param name
          * @return CompanyBuilder
          */
-        public CompanyBuilder setName(String name) {
+        public CompanyBuilder withName(String name) {
             this.name = name;
             return this;
         }

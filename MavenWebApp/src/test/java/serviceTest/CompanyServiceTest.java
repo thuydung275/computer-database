@@ -46,7 +46,7 @@ public class CompanyServiceTest {
     public void init() {
         MockitoAnnotations.initMocks(this);
         companyService.setCompanyInstance(companyDao);
-        trueCompany = new Company.CompanyBuilder().setId(1).setName("Apple Inc.").build();
+        trueCompany = new Company.CompanyBuilder().withId(1).withName("Apple Inc.").build();
     }
 
     @Rule
