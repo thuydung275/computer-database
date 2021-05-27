@@ -27,10 +27,10 @@ public class ComputerDAOTest {
     private static Logger log = Logger.getLogger(CompanyDAOTest.class);
 
     private static final int TOTAL_COMPUTER = 574;
-    private static final int FIND_COMPUTER_BY_ID = 13;
+    private static final Integer FIND_COMPUTER_BY_ID = 13;
     private static final String FIND_COMPUTER_BY_NAME = "MacBook Pro";
-    private static final int FIRST_COMPUTER_PER_PAGE = 1;
-    private static final int LAST_COMPUTER_PER_PAGE = 10;
+    private static final Integer FIRST_COMPUTER_PER_PAGE = 1;
+    private static final Integer LAST_COMPUTER_PER_PAGE = 10;
     private static final String NEW_COMPUTER_NAME = "computer name for test";
     private static final String UPDATE_COMPUTER_NAME = "computer name updated for test";
 

@@ -88,7 +88,7 @@
                         </td>
                         <td>${computer.introduced}</td>
                         <td>${computer.discontinued}</td>
-                        <td>${computer.company.name}</td>
+                        <td>${computer.companyName}</td>
 
                     </tr>
                     </c:forEach>
@@ -130,9 +130,9 @@
             </ul>
        
 	        <div class="btn-group btn-group-sm pull-right" role="group" >
-	            <a href="?page=${pagination.page}&perPage=10" class="btn btn-default ${pagination.limit == 10 ? 'active' : '' }">10</a>
-	            <a href="?page=${pagination.page}&perPage=50" class="btn btn-default ${pagination.limit == 50 ? 'active' : '' }">50</a>
-	            <a href="?page=${pagination.page}&perPage=100" class="btn btn-default ${pagination.limit == 100 ? 'active' : '' }">100</a>
+	            <a href="?page=${pagination.page > maxTotalPage[0] ? maxTotalPage[0] : pagination.page}&perPage=10" class="btn btn-default ${pagination.limit == 10 ? 'active' : '' }">10</a>
+	            <a href="?page=${pagination.page > maxTotalPage[1] ? maxTotalPage[1] : pagination.page}&perPage=50" class="btn btn-default ${pagination.limit == 50 ? 'active' : '' }">50</a>
+	            <a href="?page=${pagination.page > maxTotalPage[2] ? maxTotalPage[2] : pagination.page}&perPage=100" class="btn btn-default ${pagination.limit == 100 ? 'active' : '' }">100</a>
 	        </div>
         </div>
 

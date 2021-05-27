@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 public class Computer {
 
-    private int id;
+    private Integer id;
     private String name;
     private LocalDate introduced;
     private LocalDate discontinued;
@@ -19,7 +19,7 @@ public class Computer {
     }
 
     public static class ComputerBuilder {
-        private int id;
+        private Integer id;
         private String name;
         private LocalDate introduced;
         private LocalDate discontinued;
@@ -36,7 +36,7 @@ public class Computer {
          * @param id
          * @return ComputerBuilder
          */
-        public ComputerBuilder withId(int id) {
+        public ComputerBuilder withId(Integer id) {
             this.id = id;
             return this;
         }
@@ -102,11 +102,11 @@ public class Computer {
         return copyComputer;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

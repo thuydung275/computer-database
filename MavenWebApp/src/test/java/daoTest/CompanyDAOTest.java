@@ -28,9 +28,9 @@ public class CompanyDAOTest {
 
     private static final int TOTAL_COMPANY = 42;
     private static final String FIND_COMPANY_BY_NAME = "IBM";
-    private static final int FIND_COMPANY_BY_ID = 13;
-    private static final int FIRST_COMPANY_PER_PAGE = 1;
-    private static final int LAST_COMPANY_PER_PAGE = 10;
+    private static final Integer FIND_COMPANY_BY_ID = 13;
+    private static final Integer FIRST_COMPANY_PER_PAGE = 1;
+    private static final Integer LAST_COMPANY_PER_PAGE = 10;
     private static final String NEW_COMPANY_NAME = "company name for test";
     private static final String UPDATE_COMPANY_NAME = "company name updated for test";
 
