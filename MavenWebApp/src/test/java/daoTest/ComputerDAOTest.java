@@ -54,7 +54,7 @@ public class ComputerDAOTest {
     }
 
     @Test
-    public void testFindById() {
+    public void testFindByIdShouldReturnComputer() {
         Optional<Computer> opt = computerInstance.findById(FIND_COMPUTER_BY_ID);
         if (opt.isPresent()) {
             Assert.assertEquals(FIND_COMPUTER_BY_ID, opt.get().getId());
@@ -62,26 +62,32 @@ public class ComputerDAOTest {
         } else {
             Assert.fail("Company ID: " + FIND_COMPUTER_BY_ID + " not found !");
         }
+    }
 
-        opt = computerInstance.findById(TOTAL_COMPUTER + 1);
+    @Test
+    public void testFindByIdShouldReturnNull() {
+        Optional<Computer> opt = computerInstance.findById(TOTAL_COMPUTER + 1);
         Assert.assertFalse(opt.isPresent());
     }
 
     @Test
-    public void testFindByName() {
+    public void testFindByNameShouldReturnComputer() {
         Optional<Computer> opt = computerInstance.findByName(FIND_COMPUTER_BY_NAME);
         if (opt.isPresent()) {
             Assert.assertEquals(FIND_COMPUTER_BY_NAME, opt.get().getName());
         } else {
             Assert.fail("Computer name: " + FIND_COMPUTER_BY_NAME + " not found !");
         }
+    }
 
-        opt = computerInstance.findByName(FIND_COMPUTER_BY_NAME + FIND_COMPUTER_BY_NAME);
+    @Test
+    public void testFindByNameShouldReturnNull() {
+        Optional<Computer> opt = computerInstance.findByName(FIND_COMPUTER_BY_NAME + FIND_COMPUTER_BY_NAME);
         Assert.assertFalse(opt.isPresent());
     }
 
     @Test
-    public void testGetComputerList() {
+    public void testGetComputerListShouldReturnComputerList() {
         List<Computer> computerList = computerInstance.getList();
         if (!computerList.isEmpty()) {
             Assert.assertEquals(TOTAL_COMPUTER, computerList.size());
@@ -91,7 +97,7 @@ public class ComputerDAOTest {
     }
 
     @Test
-    public void testGetComputerListPerPage() {
+    public void testGetComputerListPerPageShouldReturnComputerListPerPage() {
         List<Computer> computerList = computerInstance.getList();
 
         Pagination page = new Pagination(computerList.size());
@@ -106,7 +112,7 @@ public class ComputerDAOTest {
     }
 
     @Test
-    public void testCreateComputer() {
+    public void testCreateComputerShouldReturnComputerCreated() {
         Computer computerToCreate = new Computer.ComputerBuilder().withName(NEW_COMPUTER_NAME).build();
         Computer createdComputer = computerInstance.create(computerToCreate);
         Optional<Computer> createdComputerFromDB = computerInstance.findByName(NEW_COMPUTER_NAME);
@@ -118,7 +124,7 @@ public class ComputerDAOTest {
     }
 
     @Test
-    public void testUpdateComputer() {
+    public void testUpdateComputerShouldReturnComputerUpdated() {
         Computer computerToCreate = new Computer.ComputerBuilder().withName(NEW_COMPUTER_NAME).build();
         Computer createdComputer = computerInstance.create(computerToCreate);
         createdComputer.setName(UPDATE_COMPUTER_NAME);
@@ -132,13 +138,16 @@ public class ComputerDAOTest {
     }
 
     @Test
-    public void testDeleteComputer() {
+    public void testDeleteComputerShouldReturnTrue() {
         computerInstance.create(new Computer.ComputerBuilder().withName(NEW_COMPUTER_NAME).build());
         Optional<Computer> opt = computerInstance.findByName(NEW_COMPUTER_NAME);
         boolean deleted = computerInstance.delete(opt.get().getId());
         Assert.assertTrue(deleted);
+    }
 
-        deleted = computerInstance.delete(TOTAL_COMPUTER + 1);
+    @Test
+    public void testDeleteComputerShouldReturnFalse() {
+        boolean deleted = computerInstance.delete(TOTAL_COMPUTER + 1);
         Assert.assertFalse(deleted);
     }
 }

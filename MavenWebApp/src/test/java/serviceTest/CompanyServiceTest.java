@@ -53,11 +53,14 @@ public class CompanyServiceTest {
     public ExpectedException exceptionRule = ExpectedException.none();
 
     @Test
-    public void testFindCompanyById() {
+    public void testFindCompanyByIdShouldReturnCompany() {
         when(companyDao.findById(FIND_COMPANY_BY_ID)).thenReturn(Optional.of(trueCompany));
         Assert.assertEquals(companyService.findById(FIND_COMPANY_BY_ID), trueCompany);
         verify(companyDao).findById(FIND_COMPANY_BY_ID);
+    }
 
+    @Test
+    public void testFindCompanyByIdShouldThrowException() {
         when(companyDao.findById(FAKE_COMPANY_ID)).thenReturn(Optional.ofNullable(null));
         exceptionRule.expect(CustomException.class);
         exceptionRule.expectMessage(FAKE_COMPANY_ID + CustomException.TEXT_ER_NOT_FOUND);
@@ -66,11 +69,14 @@ public class CompanyServiceTest {
     }
 
     @Test
-    public void findCompanyByName() {
+    public void findCompanyByNameShouldReturnCompany() {
         when(companyDao.findByName(FIND_COMPANY_BY_NAME)).thenReturn(Optional.of(trueCompany));
         Assert.assertEquals(companyService.findByName(FIND_COMPANY_BY_NAME), trueCompany);
         verify(companyDao).findByName(FIND_COMPANY_BY_NAME);
+    }
 
+    @Test
+    public void findCompanyByNameShouldThrowException() {
         when(companyDao.findByName(FAKE_COMPANY_NAME)).thenReturn(Optional.ofNullable(null));
         exceptionRule.expect(CustomException.class);
         exceptionRule.expectMessage(FAKE_COMPANY_NAME + CustomException.TEXT_ER_NOT_FOUND);
@@ -79,7 +85,7 @@ public class CompanyServiceTest {
     }
 
     @Test
-    public void testGetListCompanies() {
+    public void testGetListCompaniesShouldReturnNotEmptyCompanyList() {
         List<Company> companies = new ArrayList<>(Arrays.asList(trueCompany, trueCompany));
         when(companyDao.getList()).thenReturn(companies);
         List<Company> companyList = companyService.getListCompanies();
@@ -88,7 +94,7 @@ public class CompanyServiceTest {
     }
 
     @Test
-    public void testGetListCompaniesPerPage() {
+    public void testGetListCompaniesPerPageCompanyListPerPage() {
         Pagination pagination = new Pagination(LIMIT_PER_PAGE, PAGE_NUMBER, TOTAL_COMPANY);
         List<Company> companies = new ArrayList<>(Arrays.asList(trueCompany, trueCompany, trueCompany));
 

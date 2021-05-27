@@ -54,33 +54,39 @@ public class CompanyDAOTest {
     }
 
     @Test
-    public void testFindById() {
+    public void testFindByIdShouldReturnId() {
         Optional<Company> opt = companyInstance.findById(FIND_COMPANY_BY_ID);
         if (opt.isPresent()) {
             Assert.assertEquals(FIND_COMPANY_BY_ID, opt.get().getId());
         } else {
             Assert.fail("Company ID: " + FIND_COMPANY_BY_ID + " not found !");
         }
+    }
 
-        opt = companyInstance.findById(TOTAL_COMPANY + 1);
+    @Test
+    public void testFindByIdShouldReturnNull() {
+        Optional<Company> opt = companyInstance.findById(TOTAL_COMPANY + 1);
         Assert.assertFalse(opt.isPresent());
     }
 
     @Test
-    public void testFindByName() {
+    public void testFindByNameShouldReturnName() {
         Optional<Company> opt = companyInstance.findByName(FIND_COMPANY_BY_NAME);
         if (opt.isPresent()) {
             Assert.assertEquals(FIND_COMPANY_BY_NAME, opt.get().getName());
         } else {
             Assert.fail("Company name: " + FIND_COMPANY_BY_NAME + " not found !");
         }
+    }
 
-        opt = companyInstance.findByName(FIND_COMPANY_BY_NAME + FIND_COMPANY_BY_NAME);
+    @Test
+    public void testFindByNameShouldReturnNull() {
+        Optional<Company> opt = companyInstance.findByName(FIND_COMPANY_BY_NAME + FIND_COMPANY_BY_NAME);
         Assert.assertFalse(opt.isPresent());
     }
 
     @Test
-    public void testGetCompanyList() {
+    public void testGetCompanyListShouldReturnTotalCompany() {
         List<Company> companyList = companyInstance.getList();
         if (!companyList.isEmpty()) {
             Assert.assertEquals(TOTAL_COMPANY, companyList.size());
@@ -90,7 +96,7 @@ public class CompanyDAOTest {
     }
 
     @Test
-    public void testGetCompanyListPerPage() {
+    public void testGetCompanyListPerPageShouldReturnCompanyListPerPage() {
         List<Company> companyList = companyInstance.getList();
 
         Pagination page = new Pagination(companyList.size());
@@ -105,7 +111,7 @@ public class CompanyDAOTest {
     }
 
     @Test
-    public void testCreateCompany() {
+    public void testCreateCompanyShouldReturnIdCreated() {
         Company companyToCreate = new Company.CompanyBuilder().withName(NEW_COMPANY_NAME).build();
         Company createdCompany = companyInstance.create(companyToCreate);
         Optional<Company> createdCompanyFromDB = companyInstance.findByName(NEW_COMPANY_NAME);
@@ -117,7 +123,7 @@ public class CompanyDAOTest {
     }
 
     @Test
-    public void testUpdateCompany() {
+    public void testUpdateCompanyShouldReturnCompanyUpdated() {
         Company createdCompany = companyInstance
                 .create(new Company.CompanyBuilder().withName(NEW_COMPANY_NAME).build());
         createdCompany.setName(UPDATE_COMPANY_NAME);
@@ -131,13 +137,16 @@ public class CompanyDAOTest {
     }
 
     @Test
-    public void testDeleteCompany() {
+    public void testDeleteCompanyShouldReturnTrue() {
         companyInstance.create(new Company.CompanyBuilder().withName(NEW_COMPANY_NAME).build());
         Optional<Company> opt = companyInstance.findByName(NEW_COMPANY_NAME);
         boolean deleted = companyInstance.delete(opt.get().getId());
         Assert.assertTrue(deleted);
+    }
 
-        deleted = companyInstance.delete(TOTAL_COMPANY + 1);
+    @Test
+    public void testDeleteCompanyShouldReturnFalse() {
+        boolean deleted = companyInstance.delete(TOTAL_COMPANY + 1);
         Assert.assertFalse(deleted);
     }
 
