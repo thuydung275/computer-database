@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.log4j.Logger;
 
 import com.excilys.connection.ConnectionHelper;
@@ -16,6 +15,7 @@ import com.excilys.connection.DBConnection;
 import com.excilys.mapper.CompanyMapper;
 import com.excilys.model.Company;
 import com.excilys.service.Pagination;
+import com.zaxxer.hikari.HikariDataSource;
 
 /**
  *
@@ -25,7 +25,7 @@ import com.excilys.service.Pagination;
 public class CompanyDAO {
 
     private static Logger log = Logger.getLogger(CompanyDAO.class);
-    private static BasicDataSource dataSource = (BasicDataSource) DBConnection.getInstance().getDataSource();
+    private static HikariDataSource dataSource = DBConnection.getInstance().getDataSource();
     private static Connection connection;
     private static ResultSet result;
     private static PreparedStatement preparedStatement;

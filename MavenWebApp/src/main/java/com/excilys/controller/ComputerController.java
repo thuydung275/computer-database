@@ -74,4 +74,16 @@ public class ComputerController {
         }
         return null;
     }
+
+    public static boolean deleteComputer(String idList) {
+        boolean result = false;
+        if (StringUtils.isBlank(idList)) {
+            return result;
+        } else {
+            Arrays.asList(idList.split(",")).stream().forEach(
+                    id -> computerService.remove(new Computer.ComputerBuilder().withId(Integer.valueOf(id)).build()));
+            result = true;
+        }
+        return result;
+    }
 }

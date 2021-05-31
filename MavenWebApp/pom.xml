@@ -23,8 +23,9 @@
     <mysql.version>8.0.24</mysql.version>
     <mybatis.version>3.4.5</mybatis.version>
     <commons-dbcp.version>1.4</commons-dbcp.version>
-    <commons-lang3.servion>3.11</commons-lang3.servion>
+    <commons-lang3.version>3.11</commons-lang3.version>
     <h2.version>1.4.199</h2.version>
+    <HikariCP.version>4.0.3</HikariCP.version>
     <junit.version>4.12</junit.version>
     <jstl.version>1.2</jstl.version>
     <mockito.version>3.2.4</mockito.version>
@@ -92,7 +93,13 @@
 	<dependency>
 	    <groupId>org.apache.commons</groupId>
 	    <artifactId>commons-lang3</artifactId>
-	    <version>${commons-lang3.servion}</version>
+	    <version>${commons-lang3.version}</version>
+	</dependency>
+	
+	<dependency>
+	    <groupId>com.zaxxer</groupId>
+	    <artifactId>HikariCP</artifactId>
+	    <version>${HikariCP.version}</version>
 	</dependency>
    	
   </dependencies>

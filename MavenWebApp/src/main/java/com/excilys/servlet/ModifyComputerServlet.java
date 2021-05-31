@@ -1,7 +1,6 @@
 package com.excilys.servlet;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,7 +13,6 @@ import org.apache.log4j.Logger;
 import com.excilys.controller.CompanyController;
 import com.excilys.controller.ComputerController;
 import com.excilys.dto.ComputerDTO;
-import com.excilys.model.Company;
 import com.excilys.validator.CustomException;
 
 @WebServlet(name = "ModifyComputerServlet", urlPatterns = { "/computer/add", "/computer/edit" })
@@ -25,8 +23,7 @@ public class ModifyComputerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Company> companyList = CompanyController.getListCompanies();
-        request.setAttribute("companyList", companyList);
+        request.setAttribute("companyList", CompanyController.getListCompanies());
         if (request.getParameter("id") != null) {
             String computerId = request.getParameter("id");
             ComputerDTO computer = ComputerController.findComputer(computerId);
