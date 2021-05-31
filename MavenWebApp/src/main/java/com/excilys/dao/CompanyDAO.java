@@ -62,7 +62,7 @@ public class CompanyDAO {
             preparedStatement.setInt(1, id);
             result = preparedStatement.executeQuery();
             while (result.next()) {
-                company = CompanyMapper.setObject(result);
+                company = CompanyMapper.mapFromResultSetToCompany(result);
             }
         } catch (SQLException sqle) {
             log.debug(sqle.getMessage());
@@ -88,7 +88,7 @@ public class CompanyDAO {
             preparedStatement.setString(1, name);
             result = preparedStatement.executeQuery();
             while (result.next()) {
-                company = CompanyMapper.setObject(result);
+                company = CompanyMapper.mapFromResultSetToCompany(result);
             }
         } catch (SQLException sqle) {
             log.debug(sqle.getMessage());
@@ -112,7 +112,7 @@ public class CompanyDAO {
             preparedStatement = connection.prepareStatement(FIND_ALL);
             result = preparedStatement.executeQuery();
             while (result.next()) {
-                companyList.add(CompanyMapper.setObject(result));
+                companyList.add(CompanyMapper.mapFromResultSetToCompany(result));
             }
         } catch (SQLException sqle) {
             log.debug(sqle.getMessage());
@@ -137,7 +137,7 @@ public class CompanyDAO {
             preparedStatement = connection.prepareStatement(FIND_ALL + withLimit);
             result = preparedStatement.executeQuery();
             while (result.next()) {
-                companyList.add(CompanyMapper.setObject(result));
+                companyList.add(CompanyMapper.mapFromResultSetToCompany(result));
             }
         } catch (SQLException sqle) {
             log.debug(sqle.getMessage());

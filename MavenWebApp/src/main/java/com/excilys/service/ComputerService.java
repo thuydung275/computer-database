@@ -3,8 +3,11 @@ package com.excilys.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.log4j.Logger;
+
 import com.excilys.dao.CompanyDAO;
 import com.excilys.dao.ComputerDAO;
+import com.excilys.model.Company;
 import com.excilys.model.Computer;
 import com.excilys.validator.CustomException;
 
@@ -17,6 +20,7 @@ public class ComputerService {
 
     private static ComputerDAO computerInstance = ComputerDAO.getInstance();
     private static CompanyService companyService = new CompanyService();
+    private static Logger log = Logger.getLogger(ComputerService.class);
 
     /**
      *
@@ -61,7 +65,7 @@ public class ComputerService {
         if (opt.isPresent()) {
             return opt.get();
         }
-        throw new CustomException(id + CustomException.TEXT_ER_NOT_FOUND, CustomException.ER_NOT_FOUND);
+        return null;
     }
 
     /**
@@ -73,7 +77,10 @@ public class ComputerService {
         validateDate(computer);
         if (computer.getCompany() != null) {
             if (computer.getCompany().getId() != 0) {
-                companyService.findById(computer.getCompany().getId());
+                Company company = companyService.findById(computer.getCompany().getId());
+                if (company == null) {
+                    throw new CustomException("company does not exist in our database", CustomException.ER_NOT_FOUND);
+                }
             } else {
                 throw new CustomException("company does not exist in our database", CustomException.ER_NOT_FOUND);
             }

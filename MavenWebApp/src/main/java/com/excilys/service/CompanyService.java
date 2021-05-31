@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import com.excilys.dao.CompanyDAO;
 import com.excilys.model.Company;
-import com.excilys.validator.CustomException;
 
 /**
  *
@@ -30,7 +29,7 @@ public class CompanyService {
         if (opt.isPresent()) {
             return opt.get();
         }
-        throw new CustomException(name + CustomException.TEXT_ER_NOT_FOUND, CustomException.ER_NOT_FOUND);
+        return null;
     }
 
     /**
@@ -43,7 +42,7 @@ public class CompanyService {
         if (opt.isPresent()) {
             return opt.get();
         }
-        throw new CustomException(id + CustomException.TEXT_ER_NOT_FOUND, CustomException.ER_NOT_FOUND);
+        return null;
     }
 
     /**

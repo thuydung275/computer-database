@@ -22,7 +22,7 @@
     <section id="main">
         <div class="container">
             <h1 id="homeTitle">
-             <c:out value="${pagination.totalItem}" /> Computers found
+             ${pagination.totalItem} Computers found
             </h1>
             <div id="actions" class="form-horizontal">
                 <div class="pull-left">
@@ -81,10 +81,10 @@
                     <c:forEach var="computer" items="${computerList}">
                     <tr>
                         <td class="editMode">
-                            <input type="checkbox" name="cb" class="cb" value="0">
+                            <input type="checkbox" name="cb" class="cb" value="${computer.id}">
                         </td>
                         <td>
-                            <a href="editComputer.html" onclick="">${computer.name }</a>
+                            <a href="${pageContext.request.contextPath}/computer/edit?id=${computer.id}" onclick="">${computer.name }</a>
                         </td>
                         <td>${computer.introduced}</td>
                         <td>${computer.discontinued}</td>
@@ -115,7 +115,7 @@
                 <c:forEach var="pageNumber" begin="${firstPage}" end="${lastPage}">
 	                <c:if test="${pageNumber > 0 && pageNumber <= pagination.totalPage}">
 	                   <li class="${pagination.page == pageNumber ? 'active' : '' }">
-	                       <a href="?page=${pageNumber}&perPage=${pagination.limit}"><c:out value = "${pageNumber}"/></a>
+	                       <a href="?page=${pageNumber}&perPage=${pagination.limit}">${pageNumber}</a>
 	                   </li>
 	                </c:if>
 			    </c:forEach>

@@ -62,7 +62,7 @@ public class ComputerDAO {
             preparedStatement.setInt(1, id);
             result = preparedStatement.executeQuery();
             while (result.next()) {
-                computer = ComputerMapper.setObject(result);
+                computer = ComputerMapper.mapFromResultSetToComputer(result);
             }
         } catch (SQLException sqle) {
             log.debug(sqle.getMessage());
@@ -87,7 +87,7 @@ public class ComputerDAO {
             preparedStatement.setString(1, name);
             result = preparedStatement.executeQuery();
             while (result.next()) {
-                computer = ComputerMapper.setObject(result);
+                computer = ComputerMapper.mapFromResultSetToComputer(result);
             }
         } catch (SQLException sqle) {
             log.debug(sqle.getMessage());
@@ -111,7 +111,7 @@ public class ComputerDAO {
             preparedStatement = connection.prepareStatement(FIND_ALL);
             result = preparedStatement.executeQuery();
             while (result.next()) {
-                computerList.add(ComputerMapper.setObject(result));
+                computerList.add(ComputerMapper.mapFromResultSetToComputer(result));
             }
         } catch (SQLException sqle) {
             log.debug(sqle.getMessage());
@@ -135,7 +135,7 @@ public class ComputerDAO {
             preparedStatement = connection.prepareStatement(FIND_ALL + withLimit);
             result = preparedStatement.executeQuery();
             while (result.next()) {
-                computerList.add(ComputerMapper.setObject(result));
+                computerList.add(ComputerMapper.mapFromResultSetToComputer(result));
             }
         } catch (SQLException sqle) {
             log.debug(sqle.getMessage());

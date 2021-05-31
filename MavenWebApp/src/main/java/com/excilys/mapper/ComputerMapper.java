@@ -3,6 +3,7 @@ package com.excilys.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import com.excilys.dto.ComputerDTO;
 import com.excilys.model.Company;
@@ -17,7 +18,7 @@ public class ComputerMapper {
      * @return Computer
      * @throws SQLException
      */
-    public static Computer setObject(ResultSet result) throws SQLException {
+    public static Computer mapFromResultSetToComputer(ResultSet result) throws SQLException {
         ComputerBuilder builder = new Computer.ComputerBuilder();
 
         builder.withId(result.getInt("computer.id"));
@@ -48,7 +49,7 @@ public class ComputerMapper {
         return computer;
     }
 
-    public static Computer setObject(ComputerDTO computerDTO) {
+    public static Computer mapFromDTOtoComputer(ComputerDTO computerDTO) {
         Computer computer = new Computer.ComputerBuilder().build();
 
         if (computerDTO.getId() != null && !computerDTO.getId().isEmpty()) {
@@ -69,5 +70,27 @@ public class ComputerMapper {
         }
 
         return computer;
+    }
+
+    public static ComputerDTO mapFromComputerToDTO(Computer computer) {
+        ComputerDTO comDTO = new ComputerDTO.ComputerDTOBuilder().build();
+        if (computer.getId() != null) {
+            comDTO.setId(computer.getId().toString());
+        }
+        if (computer.getName() != null && !computer.getName().isEmpty()) {
+            comDTO.setName(computer.getName());
+        }
+        if (computer.getIntroduced() != null) {
+            comDTO.setIntroduced(computer.getIntroduced().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        }
+        if (computer.getDiscontinued() != null) {
+            comDTO.setDiscontinued(computer.getDiscontinued().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        }
+        if (computer.getCompany() != null) {
+            comDTO.setCompanyId(computer.getCompany().getId().toString());
+            comDTO.setCompanyName(computer.getCompany().getName());
+        }
+        return comDTO;
+
     }
 }

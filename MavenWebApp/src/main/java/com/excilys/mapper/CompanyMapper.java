@@ -13,7 +13,7 @@ public class CompanyMapper {
      * @return Company
      * @throws SQLException
      */
-    public static Company setObject(ResultSet result) throws SQLException {
+    public static Company mapFromResultSetToCompany(ResultSet result) throws SQLException {
         CompanyBuilder builder = new Company.CompanyBuilder();
 
         builder.withId(result.getInt("company.id"));

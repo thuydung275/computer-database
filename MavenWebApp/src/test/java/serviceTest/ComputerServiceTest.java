@@ -75,11 +75,9 @@ public class ComputerServiceTest {
     }
 
     @Test
-    public void testFindComputerByIdShouldThrowException() {
+    public void testFindComputerByIdShouldReturnNull() {
         when(computerDao.findById(FAKE_COMPUTER_ID)).thenReturn(Optional.ofNullable(null));
-        exceptionRule.expect(CustomException.class);
-        exceptionRule.expectMessage(FAKE_COMPUTER_ID + CustomException.TEXT_ER_NOT_FOUND);
-        computerService.findById(FAKE_COMPUTER_ID);
+        Assert.assertNull(computerService.findById(FAKE_COMPUTER_ID));
         verify(computerDao).findById(FAKE_COMPUTER_ID);
     }
 
@@ -172,10 +170,10 @@ public class ComputerServiceTest {
         Computer mockComputer = Computer.copy(trueComputer);
         mockComputer.setName("mock computer");
         when(computerDao.update(mockComputer)).thenReturn(mockComputer);
-
         when(computerDao.findById(mockComputer.getId())).thenReturn(Optional.of(mockComputer));
 
         mockComputer.setIntroduced(LocalDate.now());
+        mockComputer.setDiscontinued(LocalDate.of(2000, 1, 1));
         exceptionRule.expect(CustomException.class);
         exceptionRule.expectMessage("discontinued date is smaller then introduced date");
         computerService.update(mockComputer);

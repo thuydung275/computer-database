@@ -1,6 +1,5 @@
 package com.excilys.controller;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,26 +22,7 @@ public class ComputerController {
         ComputerService computerService = new ComputerService();
         List<Computer> computerList = computerService.getListPerPage(page);
 
-        return computerList.stream().map(c -> {
-            ComputerDTO comDTO = new ComputerDTO.ComputerDTOBuilder().build();
-            if (c.getId() != null) {
-                comDTO.setId(c.getId().toString());
-            }
-            if (c.getName() != null && !c.getName().isEmpty()) {
-                comDTO.setName(c.getName());
-            }
-            if (c.getIntroduced() != null) {
-                comDTO.setIntroduced(c.getIntroduced().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-            }
-            if (c.getDiscontinued() != null) {
-                comDTO.setDiscontinued(c.getDiscontinued().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-            }
-            if (c.getCompany() != null) {
-                comDTO.setCompanyId(c.getCompany().getId().toString());
-                comDTO.setCompanyName(c.getCompany().getName());
-            }
-            return comDTO;
-        }).collect(Collectors.toList());
+        return computerList.stream().map(c -> ComputerMapper.mapFromComputerToDTO(c)).collect(Collectors.toList());
     }
 
     public static Pagination getPage(String pageNumber, String perPage) {
@@ -62,8 +42,21 @@ public class ComputerController {
         ComputerDTO computerDTO = new ComputerDTO.ComputerDTOBuilder().withName(name).withIntroduced(introduced)
                 .withDiscontinued(discontinued).withCompanyId(companyId).build();
         ComputerValidator.validateComputerDTO(computerDTO);
-        Computer computer = ComputerMapper.setObject(computerDTO);
+        Computer computer = ComputerMapper.mapFromDTOtoComputer(computerDTO);
         new ComputerService().create(computer);
+    }
+
+    public static void updateComputer(String computerId, String computerName, String introduced, String discontinued,
+            String companyId) {
+        ComputerDTO computerDTO = ComputerController.findComputer(computerId);
+        if (computerDTO == null) {
+            throw new CustomException("Id invalid !");
+        }
+        computerDTO = new ComputerDTO.ComputerDTOBuilder().withId(computerId).withName(computerName)
+                .withIntroduced(introduced).withDiscontinued(discontinued).withCompanyId(companyId).build();
+        ComputerValidator.validateComputerDTO(computerDTO);
+        Computer computer = ComputerMapper.mapFromDTOtoComputer(computerDTO);
+        new ComputerService().update(computer);
     }
 
     public static List<Integer> getMaxPagePerLimit(int limitMin, int limitMid, int limitMax) {
@@ -72,5 +65,13 @@ public class ComputerController {
         int pageLimitMid = new Pagination(limitMid, 0, totalItem).getTotalPage();
         int pageLimitMax = new Pagination(limitMax, 0, totalItem).getTotalPage();
         return Arrays.asList(pageLimitMin, pageLimitMid, pageLimitMax);
+    }
+
+    public static ComputerDTO findComputer(String computerId) {
+        if (computerId != null && StringUtils.isNumeric(computerId)) {
+            Computer computer = computerService.findById(Integer.parseInt(computerId));
+            return ComputerMapper.mapFromComputerToDTO(computer);
+        }
+        return null;
     }
 }

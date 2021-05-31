@@ -23,7 +23,6 @@ import com.excilys.dao.CompanyDAO;
 import com.excilys.model.Company;
 import com.excilys.service.CompanyService;
 import com.excilys.service.Pagination;
-import com.excilys.validator.CustomException;
 
 public class CompanyServiceTest {
 
@@ -60,11 +59,9 @@ public class CompanyServiceTest {
     }
 
     @Test
-    public void testFindCompanyByIdShouldThrowException() {
+    public void testFindCompanyByIdShouldReturnNull() {
         when(companyDao.findById(FAKE_COMPANY_ID)).thenReturn(Optional.ofNullable(null));
-        exceptionRule.expect(CustomException.class);
-        exceptionRule.expectMessage(FAKE_COMPANY_ID + CustomException.TEXT_ER_NOT_FOUND);
-        companyService.findById(FAKE_COMPANY_ID);
+        Assert.assertNull(companyService.findById(FAKE_COMPANY_ID));
         verify(companyDao).findById(FAKE_COMPANY_ID);
     }
 
@@ -76,11 +73,9 @@ public class CompanyServiceTest {
     }
 
     @Test
-    public void findCompanyByNameShouldThrowException() {
+    public void findCompanyByNameShouldReturnNull() {
         when(companyDao.findByName(FAKE_COMPANY_NAME)).thenReturn(Optional.ofNullable(null));
-        exceptionRule.expect(CustomException.class);
-        exceptionRule.expectMessage(FAKE_COMPANY_NAME + CustomException.TEXT_ER_NOT_FOUND);
-        companyService.findByName(FAKE_COMPANY_NAME);
+        Assert.assertNull(companyService.findByName(FAKE_COMPANY_NAME));
         verify(companyDao).findByName(FAKE_COMPANY_NAME);
     }
 
