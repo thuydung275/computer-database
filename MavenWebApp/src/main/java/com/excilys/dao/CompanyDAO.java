@@ -35,7 +35,8 @@ public class CompanyDAO {
     private static final String FIND_ALL = "SELECT company.id, company.name FROM company";
     private static final String CREATE_COMPANY = "INSERT INTO company (name) VALUES (?)";
     private static final String UPDATE_COMPANY = "UPDATE company SET name = ? WHERE id = ? ";
-    private static final String DELETE_COMPANY = "DELETE company WHERE id = ?";
+    private static final String DELETE_COMPANY = "DELETE FROM company WHERE id = ?";
+    private static final String DELETE_COMPUTER = "DELETE FROM computer WHERE company_id = ?";
 
     private CompanyDAO() {
     }
@@ -199,19 +200,26 @@ public class CompanyDAO {
     public boolean delete(int companyId) {
         boolean deleted = false;
 
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = connection.prepareStatement(DELETE_COMPANY);
-            preparedStatement.setInt(1, companyId);
-            if (preparedStatement.executeUpdate() == 1) {
-                deleted = true;
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement computerPs = connection.prepareStatement(DELETE_COMPUTER);
+                    PreparedStatement companyPs = connection.prepareStatement(DELETE_COMPANY)) {
+                computerPs.setInt(1, companyId);
+                companyPs.setInt(1, companyId);
+                computerPs.executeUpdate();
+                if (companyPs.executeUpdate() == 1) {
+                    deleted = true;
+                }
+            } catch (SQLException sqle) {
+                connection.rollback();
+                log.error(sqle.getMessage());
+            } finally {
+                connection.setAutoCommit(true);
             }
+
         } catch (SQLException sqle) {
-            log.debug(sqle.getMessage());
-        } finally {
-            ConnectionHelper.closeSqlResources(connection, preparedStatement, result);
+            log.error(sqle.getMessage());
         }
         return deleted;
     }
-
 }

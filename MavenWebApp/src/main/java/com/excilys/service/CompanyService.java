@@ -70,4 +70,8 @@ public class CompanyService {
         return companyInstance.getListPerPage(page);
     }
 
+    public boolean deleteCompany(int idCompany) {
+        return companyInstance.delete(idCompany);
+    }
+
 }
