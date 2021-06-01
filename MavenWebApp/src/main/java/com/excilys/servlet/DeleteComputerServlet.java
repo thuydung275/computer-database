@@ -22,7 +22,7 @@ public class DeleteComputerServlet extends HttpServlet {
             throws ServletException, IOException {
         String idList = request.getParameter("selection");
         ComputerController.deleteComputer(idList);
-        response.sendRedirect("/MavenWebApp/computer/list");
+        response.sendRedirect(request.getContextPath() + "/computer/list");
     }
 
 }

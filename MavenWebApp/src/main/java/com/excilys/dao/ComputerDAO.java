@@ -6,8 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.excilys.connection.ConnectionHelper;
@@ -25,7 +27,7 @@ import com.zaxxer.hikari.HikariDataSource;
 public class ComputerDAO {
 
     private static Logger log = Logger.getLogger(ComputerDAO.class);
-    private static HikariDataSource dataSource = (HikariDataSource) DBConnection.getInstance().getDataSource();
+    private static HikariDataSource dataSource = DBConnection.getInstance().getDataSource();
     private static Connection connection;
     private static ResultSet result;
     private static PreparedStatement preparedStatement;
@@ -141,6 +143,45 @@ public class ComputerDAO {
             log.debug(sqle.getMessage());
         } finally {
             ConnectionHelper.closeSqlResources(connection, preparedStatement, result);
+        }
+        return computerList;
+    }
+
+    /**
+     *
+     * @param Map<String, String> criteria = new HashMap<String, String>() {{
+     *                    put("name", "CM"); put("order", "ASC"); put("sort",
+     *                    "computer.name"); put("limit", "0,5"); }};
+     * @return List<Computer>
+     */
+    public List<Computer> findByCriteria(Map<String, String> criteria) {
+        List<Computer> computerList = new ArrayList<>();
+        String query = FIND_ALL;
+
+        if (criteria.containsKey("name") && StringUtils.isNotBlank(criteria.get("name"))) {
+            query += " WHERE computer.name LIKE ? OR company.name LIKE ? ";
+        }
+        if (criteria.containsKey("order") && StringUtils.isNotBlank(criteria.get("order"))
+                && criteria.containsKey("sort") && StringUtils.isNotBlank(criteria.get("sort"))) {
+            query += " ORDER BY " + criteria.get("sort") + " " + criteria.get("order");
+        }
+        if (criteria.containsKey("limit") && StringUtils.isNotBlank(criteria.get("limit"))) {
+            query += " LIMIT " + criteria.get("limit");
+        }
+        query += ";";
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(query);) {
+            if (criteria.containsKey("name") && StringUtils.isNotBlank(criteria.get("name"))) {
+                preparedStatement.setString(1, "%" + criteria.get("name") + "%");
+                preparedStatement.setString(2, "%" + criteria.get("name") + "%");
+            }
+            try (ResultSet result = preparedStatement.executeQuery()) {
+                while (result.next()) {
+                    computerList.add(ComputerMapper.mapFromResultSetToComputer(result));
+                }
+            }
+        } catch (SQLException sqle) {
+            sqle.printStackTrace();
         }
         return computerList;
     }

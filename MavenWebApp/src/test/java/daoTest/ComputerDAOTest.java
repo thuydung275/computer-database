@@ -103,7 +103,7 @@ public class ComputerDAOTest {
         Pagination page = new Pagination(computerList.size());
         List<Computer> computerListPerPage = computerInstance.getListPerPage(page);
         if (!computerListPerPage.isEmpty()) {
-            Assert.assertEquals(page.getLimit(), computerListPerPage.size());
+            Assert.assertEquals((int) page.getLimit(), computerListPerPage.size());
             Assert.assertEquals(FIRST_COMPUTER_PER_PAGE, computerListPerPage.get(0).getId());
             Assert.assertEquals(LAST_COMPUTER_PER_PAGE, computerListPerPage.get(page.getLimit() - 1).getId());
         } else {

@@ -26,9 +26,9 @@
             </h1>
             <div id="actions" class="form-horizontal">
                 <div class="pull-left">
-                    <form id="searchForm" action="#" method="GET" class="form-inline">
+                    <form id="searchForm" action="${pageContext.request.contextPath}/computer/list" method="GET" class="form-inline">
 
-                        <input type="search" id="searchbox" name="search" class="form-control" placeholder="Search name" />
+                        <input type="search" id="searchbox" name="search" value="${search}" class="form-control" placeholder="Search name" />
                         <input type="submit" id="searchsubmit" value="Filter by name"
                         class="btn btn-primary" />
                     </form>
@@ -60,18 +60,19 @@
                             </span>
                         </th>
                         <th>
-                            Computer name
+                            <a href="${pageContext.request.contextPath}/computer/list${not empty search ? '?search='.concat(search).concat('&') : '?'}sort=computer.name&order=${not empty order && order == 'ASC' ? 'DESC' : 'ASC'}">Computer name <i class="fa fa-fw fa-sort"></i></a>
                         </th>
                         <th>
-                            Introduced date
+                            <a href="${pageContext.request.contextPath}/computer/list${not empty search ? '?search='.concat(search).concat('&') : '?'}sort=computer.introduced&order=${not empty order && order == 'ASC' ? 'DESC' : 'ASC'}">Introduced date <i class="fa fa-fw fa-sort"></i></a>
                         </th>
                         <!-- Table header for Discontinued Date -->
                         <th>
-                            Discontinued date
+                            <a href="${pageContext.request.contextPath}/computer/list${not empty search ? '?search='.concat(search).concat('&') : '?'}sort=computer.discontinued&order=${not empty order && order == 'ASC' ? 'DESC' : 'ASC'}">Discontinued date <i class="fa fa-fw fa-sort"></i></a>
                         </th>
                         <!-- Table header for Company -->
                         <th>
-                            Company
+                            <a href="${pageContext.request.contextPath}/computer/list${not empty search ? '?search='.concat(search).concat('&') : '?'}sort=company.name&order=${not empty order && order == 'ASC' ? 'DESC' : 'ASC'}">Company name <i class="fa fa-fw fa-sort"></i></a>
+                            
                         </th>
 
                     </tr>
@@ -106,7 +107,7 @@
                 <c:set var="firstPage" value="${pagination.page - 2}"/>
                 <c:set var="lastPage" value="${pagination.page + 2}"/>
                 <li class="${pagination.page == pageNumber ? 'active' : '' }" >
-                    <a href="?page=${pagination.page - 1}&perPage=${pagination.limit}" aria-label="Previous">
+                    <a href="${not empty url ? url : '?'}page=${pagination.page - 1}&perPage=${pagination.limit}" aria-label="Previous">
                       <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
@@ -115,14 +116,14 @@
                 <c:forEach var="pageNumber" begin="${firstPage}" end="${lastPage}">
 	                <c:if test="${pageNumber > 0 && pageNumber <= pagination.totalPage}">
 	                   <li class="${pagination.page == pageNumber ? 'active' : '' }">
-	                       <a href="?page=${pageNumber}&perPage=${pagination.limit}">${pageNumber}</a>
+	                       <a href="${not empty url ? url : '?'}page=${pageNumber}&perPage=${pagination.limit}">${pageNumber}</a>
 	                   </li>
 	                </c:if>
 			    </c:forEach>
                 <c:if test="${pagination.page < pagination.totalPage}">
                 <li class="${pagination.page == pageNumber ? 'active' : '' }">
                 
-                    <a href="?page=${pagination.page + 1}&perPage=${pagination.limit}" aria-label="Next">
+                    <a href="${not empty url ? url : '?'}page=${pagination.page + 1}&perPage=${pagination.limit}" aria-label="Next">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
@@ -130,9 +131,9 @@
             </ul>
        
 	        <div class="btn-group btn-group-sm pull-right" role="group" >
-	            <a href="?page=${pagination.page > maxTotalPage[0] ? maxTotalPage[0] : pagination.page}&perPage=10" class="btn btn-default ${pagination.limit == 10 ? 'active' : '' }">10</a>
-	            <a href="?page=${pagination.page > maxTotalPage[1] ? maxTotalPage[1] : pagination.page}&perPage=50" class="btn btn-default ${pagination.limit == 50 ? 'active' : '' }">50</a>
-	            <a href="?page=${pagination.page > maxTotalPage[2] ? maxTotalPage[2] : pagination.page}&perPage=100" class="btn btn-default ${pagination.limit == 100 ? 'active' : '' }">100</a>
+	            <a href="${not empty url ? url : '?'}page=${pagination.page > maxTotalPage[0] ? maxTotalPage[0] : pagination.page}&perPage=10" class="btn btn-default ${pagination.limit == 10 ? 'active' : '' }">10</a>
+	            <a href="${not empty url ? url : '?'}page=${pagination.page > maxTotalPage[1] ? maxTotalPage[1] : pagination.page}&perPage=50" class="btn btn-default ${pagination.limit == 50 ? 'active' : '' }">50</a>
+	            <a href="${not empty url ? url : '?'}page=${pagination.page > maxTotalPage[2] ? maxTotalPage[2] : pagination.page}&perPage=100" class="btn btn-default ${pagination.limit == 100 ? 'active' : '' }">100</a>
 	        </div>
         </div>
 

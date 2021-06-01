@@ -102,7 +102,7 @@ public class CompanyDAOTest {
         Pagination page = new Pagination(companyList.size());
         List<Company> companyListPerPage = companyInstance.getListPerPage(page);
         if (!companyListPerPage.isEmpty()) {
-            Assert.assertEquals(page.getLimit(), companyListPerPage.size());
+            Assert.assertEquals((int) page.getLimit(), companyListPerPage.size());
             Assert.assertEquals(FIRST_COMPANY_PER_PAGE, companyListPerPage.get(0).getId());
             Assert.assertEquals(LAST_COMPANY_PER_PAGE, companyListPerPage.get(page.getLimit() - 1).getId());
         } else {

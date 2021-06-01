@@ -1,6 +1,7 @@
 package com.excilys.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.log4j.Logger;
@@ -44,6 +45,14 @@ public class ComputerService {
      */
     public List<Computer> getListComputers() {
         return computerInstance.getList();
+    }
+
+    /**
+     *
+     * @return List<Computer>
+     */
+    public List<Computer> findByCriteria(Map<String, String> criteria) {
+        return computerInstance.findByCriteria(criteria);
     }
 
     /**
@@ -129,5 +138,4 @@ public class ComputerService {
         }
         return computerInstance.delete(computer.getId());
     }
-
 }
