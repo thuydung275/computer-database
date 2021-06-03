@@ -10,9 +10,7 @@ import java.util.Optional;
 
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.log4j.Logger;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.excilys.connection.DBConnection;
@@ -34,7 +32,7 @@ public class CompanyDAOTest {
     private static final String NEW_COMPANY_NAME = "company name for test";
     private static final String UPDATE_COMPANY_NAME = "company name updated for test";
 
-    @Before
+    // @Before
     public void setUp() throws Exception {
         try {
             connection = DBConnection.getInstance().getDataSource().getConnection();
@@ -48,7 +46,7 @@ public class CompanyDAOTest {
         }
     }
 
-    @After
+    // @After
     public void terminate() throws Exception {
         connection.close();
     }
@@ -61,12 +59,6 @@ public class CompanyDAOTest {
         } else {
             Assert.fail("Company ID: " + FIND_COMPANY_BY_ID + " not found !");
         }
-    }
-
-    @Test
-    public void testFindByIdShouldReturnNull() {
-        Optional<Company> opt = companyInstance.findById(TOTAL_COMPANY + 1);
-        Assert.assertFalse(opt.isPresent());
     }
 
     @Test
@@ -117,6 +109,7 @@ public class CompanyDAOTest {
         Optional<Company> createdCompanyFromDB = companyInstance.findByName(NEW_COMPANY_NAME);
         if (createdCompanyFromDB.isPresent()) {
             Assert.assertEquals(createdCompany.getId(), createdCompanyFromDB.get().getId());
+            companyInstance.delete(createdCompany.getId());
         } else {
             Assert.fail("Fails to create new company !");
         }
@@ -131,6 +124,7 @@ public class CompanyDAOTest {
         Optional<Company> opt = companyInstance.findByName(UPDATE_COMPANY_NAME);
         if (opt.isPresent()) {
             Assert.assertEquals(UPDATE_COMPANY_NAME, opt.get().getName());
+            companyInstance.delete(createdCompany.getId());
         } else {
             Assert.fail("Fails to update company !");
         }
@@ -142,12 +136,6 @@ public class CompanyDAOTest {
         Optional<Company> opt = companyInstance.findByName(NEW_COMPANY_NAME);
         boolean deleted = companyInstance.delete(opt.get().getId());
         Assert.assertTrue(deleted);
-    }
-
-    @Test
-    public void testDeleteCompanyShouldReturnFalse() {
-        boolean deleted = companyInstance.delete(TOTAL_COMPANY + 1);
-        Assert.assertFalse(deleted);
     }
 
 }

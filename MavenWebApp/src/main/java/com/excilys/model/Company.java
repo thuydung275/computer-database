@@ -1,5 +1,8 @@
 package com.excilys.model;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 public class Company {
 
     private Integer id;
@@ -101,7 +104,7 @@ public class Company {
 
     @Override
     public String toString() {
-        return "Company [id=" + id + ", name=" + name + "]";
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 
 }

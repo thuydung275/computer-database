@@ -2,6 +2,9 @@ package com.excilys.model;
 
 import java.time.LocalDate;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 public class Computer {
 
     private Integer id;
@@ -202,7 +205,6 @@ public class Computer {
 
     @Override
     public String toString() {
-        return "Computer [id=" + id + ", name=" + name + ", introduced=" + introduced + ", discontinued=" + discontinued
-                + ", company=" + company + "]";
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }

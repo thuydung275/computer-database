@@ -10,9 +10,7 @@ import java.util.Optional;
 
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.log4j.Logger;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.excilys.connection.DBConnection;
@@ -34,7 +32,7 @@ public class ComputerDAOTest {
     private static final String NEW_COMPUTER_NAME = "computer name for test";
     private static final String UPDATE_COMPUTER_NAME = "computer name updated for test";
 
-    @Before
+    // @Before
     public void setUp() throws Exception {
         try {
             connection = DBConnection.getInstance().getDataSource().getConnection();
@@ -48,7 +46,7 @@ public class ComputerDAOTest {
         }
     }
 
-    @After
+    // @After
     public void terminate() throws Exception {
         connection.close();
     }
@@ -118,6 +116,7 @@ public class ComputerDAOTest {
         Optional<Computer> createdComputerFromDB = computerInstance.findByName(NEW_COMPUTER_NAME);
         if (createdComputerFromDB.isPresent()) {
             Assert.assertEquals(createdComputer.getId(), createdComputerFromDB.get().getId());
+            computerInstance.delete(createdComputer.getId());
         } else {
             Assert.fail("Fails to create new computer !");
         }

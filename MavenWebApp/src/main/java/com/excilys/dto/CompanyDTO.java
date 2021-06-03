@@ -1,5 +1,8 @@
 package com.excilys.dto;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 public class CompanyDTO {
 
     private String id;
@@ -67,7 +70,7 @@ public class CompanyDTO {
 
     @Override
     public String toString() {
-        return "CompanyDTO [id=" + id + ", name=" + name + "]";
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 
 }
