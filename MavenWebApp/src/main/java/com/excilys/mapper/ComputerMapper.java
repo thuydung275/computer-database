@@ -5,12 +5,15 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import org.springframework.stereotype.Component;
+
 import com.excilys.dto.ComputerDTO;
 import com.excilys.model.Company;
 import com.excilys.model.Company.CompanyBuilder;
 import com.excilys.model.Computer;
 import com.excilys.model.Computer.ComputerBuilder;
 
+@Component
 public class ComputerMapper {
     /**
      *
@@ -18,7 +21,7 @@ public class ComputerMapper {
      * @return Computer
      * @throws SQLException
      */
-    public static Computer mapFromResultSetToComputer(ResultSet result) throws SQLException {
+    public Computer mapFromResultSetToComputer(ResultSet result) throws SQLException {
         ComputerBuilder builder = new Computer.ComputerBuilder();
 
         builder.withId(result.getInt("computer.id"));
@@ -49,7 +52,7 @@ public class ComputerMapper {
         return computer;
     }
 
-    public static Computer mapFromDTOtoComputer(ComputerDTO computerDTO) {
+    public Computer mapFromDTOtoComputer(ComputerDTO computerDTO) {
         Computer computer = new Computer.ComputerBuilder().build();
 
         if (computerDTO.getId() != null && !computerDTO.getId().isEmpty()) {
@@ -72,7 +75,7 @@ public class ComputerMapper {
         return computer;
     }
 
-    public static ComputerDTO mapFromComputerToDTO(Computer computer) {
+    public ComputerDTO mapFromComputerToDTO(Computer computer) {
         ComputerDTO comDTO = new ComputerDTO.ComputerDTOBuilder().build();
         if (computer.getId() != null) {
             comDTO.setId(computer.getId().toString());
@@ -91,6 +94,5 @@ public class ComputerMapper {
             comDTO.setCompanyName(computer.getCompany().getName());
         }
         return comDTO;
-
     }
 }

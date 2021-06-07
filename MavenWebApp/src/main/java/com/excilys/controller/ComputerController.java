@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.excilys.dto.ComputerDTO;
 import com.excilys.mapper.ComputerMapper;
@@ -16,20 +18,25 @@ import com.excilys.service.Pagination;
 import com.excilys.validator.ComputerValidator;
 import com.excilys.validator.CustomException;
 
+@Component
 public class ComputerController {
 
-    private static ComputerService computerService = new ComputerService();
+    @Autowired
+    private ComputerService computerService;
+    @Autowired
+    private ComputerMapper computerMapper;
+
     private static Logger log = Logger.getLogger(ComputerController.class);
 
-    public static List<ComputerDTO> getComputerListPerPage(Map<String, String> criteria) {
-        Pagination pagination = ComputerController.getPage(criteria);
+    public List<ComputerDTO> getComputerListPerPage(Map<String, String> criteria) {
+        Pagination pagination = this.getPage(criteria);
         criteria.put("limit", pagination.getLimit() * (pagination.getPage() - 1) + "," + pagination.getLimit());
         List<Computer> computerList = computerService.findByCriteria(criteria);
 
-        return computerList.stream().map(c -> ComputerMapper.mapFromComputerToDTO(c)).collect(Collectors.toList());
+        return computerList.stream().map(c -> computerMapper.mapFromComputerToDTO(c)).collect(Collectors.toList());
     }
 
-    public static List<Integer> getMaxPagePerLimit(Map<String, String> criteria) {
+    public List<Integer> getMaxPagePerLimit(Map<String, String> criteria) {
         int totalItem = 0;
         if (criteria.get("name") != null && StringUtils.isNotBlank(criteria.get("name"))) {
             Map<String, String> nameToSearch = criteria.entrySet().stream().filter(x -> x.getKey() == "name")
@@ -44,7 +51,7 @@ public class ComputerController {
         return Arrays.asList(pageLimitMin, pageLimitMid, pageLimitMax);
     }
 
-    public static Pagination getPage(Map<String, String> criteria) {
+    public Pagination getPage(Map<String, String> criteria) {
         String pageNumber = criteria.get("pageNumber");
         String perPage = criteria.get("perPage");
         String name = criteria.get("name");
@@ -67,37 +74,37 @@ public class ComputerController {
         return page;
     }
 
-    public static void createComputer(String name, String introduced, String discontinued, String companyId)
+    public void createComputer(String name, String introduced, String discontinued, String companyId)
             throws CustomException {
         ComputerDTO computerDTO = new ComputerDTO.ComputerDTOBuilder().withName(name).withIntroduced(introduced)
                 .withDiscontinued(discontinued).withCompanyId(companyId).build();
         ComputerValidator.validateComputerDTO(computerDTO);
-        Computer computer = ComputerMapper.mapFromDTOtoComputer(computerDTO);
-        new ComputerService().create(computer);
+        Computer computer = computerMapper.mapFromDTOtoComputer(computerDTO);
+        computerService.create(computer);
     }
 
-    public static void updateComputer(String computerId, String computerName, String introduced, String discontinued,
+    public void updateComputer(String computerId, String computerName, String introduced, String discontinued,
             String companyId) {
-        ComputerDTO computerDTO = ComputerController.findComputer(computerId);
+        ComputerDTO computerDTO = this.findComputer(computerId);
         if (computerDTO == null) {
             throw new CustomException("Id invalid !");
         }
         computerDTO = new ComputerDTO.ComputerDTOBuilder().withId(computerId).withName(computerName)
                 .withIntroduced(introduced).withDiscontinued(discontinued).withCompanyId(companyId).build();
         ComputerValidator.validateComputerDTO(computerDTO);
-        Computer computer = ComputerMapper.mapFromDTOtoComputer(computerDTO);
-        new ComputerService().update(computer);
+        Computer computer = computerMapper.mapFromDTOtoComputer(computerDTO);
+        computerService.update(computer);
     }
 
-    public static ComputerDTO findComputer(String computerId) {
+    public ComputerDTO findComputer(String computerId) {
         if (computerId != null && StringUtils.isNumeric(computerId)) {
             Computer computer = computerService.findById(Integer.parseInt(computerId));
-            return ComputerMapper.mapFromComputerToDTO(computer);
+            return computerMapper.mapFromComputerToDTO(computer);
         }
         return null;
     }
 
-    public static boolean deleteComputer(String idList) {
+    public boolean deleteComputer(String idList) {
         boolean result = false;
         if (StringUtils.isBlank(idList)) {
             return result;
@@ -109,7 +116,7 @@ public class ComputerController {
         return result;
     }
 
-    public static String setUrl(String search, String order, String sort) {
+    public String setUrl(String search, String order, String sort) {
         String url = "?";
         if (StringUtils.isNotBlank(search)) {
             url += "search=" + search;

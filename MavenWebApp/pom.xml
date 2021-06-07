@@ -30,6 +30,8 @@
     <jstl.version>1.2</jstl.version>
     <mockito.version>3.2.4</mockito.version>
     <slf4j-log4j12.version>1.7.25</slf4j-log4j12.version>
+    <spring-context.version>5.3.7</spring-context.version>
+    <spring-webmvc.version>5.3.7</spring-webmvc.version>
   </properties>
 
   <dependencies>
@@ -101,6 +103,17 @@
 	    <artifactId>HikariCP</artifactId>
 	    <version>${HikariCP.version}</version>
 	</dependency>
+	<dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>${spring-context.version}</version>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-webmvc</artifactId>
+         <version>${spring-webmvc.version}</version>
+     </dependency>
    	
   </dependencies>
 

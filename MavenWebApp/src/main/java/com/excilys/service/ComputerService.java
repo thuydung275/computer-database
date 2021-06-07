@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.excilys.dao.CompanyDAO;
 import com.excilys.dao.ComputerDAO;
@@ -17,10 +19,13 @@ import com.excilys.validator.CustomException;
  * @author thuydung
  *
  */
+@Service
 public class ComputerService {
 
-    private static ComputerDAO computerInstance = ComputerDAO.getInstance();
-    private static CompanyService companyService = new CompanyService();
+    @Autowired
+    private ComputerDAO computerInstance;
+    @Autowired
+    private CompanyService companyService;
     private static Logger log = Logger.getLogger(ComputerService.class);
 
     /**
@@ -28,7 +33,7 @@ public class ComputerService {
      * @param computerInstance
      */
     public void setComputerInstance(ComputerDAO computerInstance) {
-        ComputerService.computerInstance = computerInstance;
+        this.computerInstance = computerInstance;
     }
 
     /**
@@ -36,7 +41,7 @@ public class ComputerService {
      * @param companyInstance
      */
     public void setCompanyInstance(CompanyDAO companyInstance) {
-        ComputerService.companyService.setCompanyInstance(companyInstance);
+        this.companyService.setCompanyInstance(companyInstance);
     }
 
     /**

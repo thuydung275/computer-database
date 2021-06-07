@@ -3,6 +3,10 @@ package com.excilys.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.excilys.dao.CompanyDAO;
 import com.excilys.model.Company;
 
@@ -11,12 +15,15 @@ import com.excilys.model.Company;
  * @author thuydung
  *
  */
+@Service
 public class CompanyService {
 
-    private static CompanyDAO companyInstance = CompanyDAO.getInstance();
+    @Autowired
+    private CompanyDAO companyInstance;
+    private static Logger log = Logger.getLogger(CompanyService.class);
 
     public void setCompanyInstance(CompanyDAO companyInstance) {
-        CompanyService.companyInstance = companyInstance;
+        this.companyInstance = companyInstance;
     }
 
     /**

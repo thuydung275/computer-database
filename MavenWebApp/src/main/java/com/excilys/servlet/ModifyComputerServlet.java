@@ -3,38 +3,48 @@ package com.excilys.servlet;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.excilys.controller.CompanyController;
 import com.excilys.controller.ComputerController;
 import com.excilys.dto.ComputerDTO;
 import com.excilys.validator.CustomException;
 
-@WebServlet(name = "ModifyComputerServlet", urlPatterns = { "/computer/add", "/computer/edit" })
+@Controller
+@RequestMapping("/computer/edit")
 public class ModifyComputerServlet extends HttpServlet {
+
+    @Autowired
+    private ComputerController computerController;
+    @Autowired
+    private CompanyController companyController;
     private static final long serialVersionUID = 1L;
     private static Logger log = Logger.getLogger(ModifyComputerServlet.class);
 
     @Override
+    @GetMapping
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setAttribute("companyList", CompanyController.getListCompanies());
+        request.setAttribute("companyList", companyController.getListCompanies());
         if (request.getParameter("id") != null) {
             String computerId = request.getParameter("id");
-            ComputerDTO computer = ComputerController.findComputer(computerId);
+            ComputerDTO computer = computerController.findComputer(computerId);
             request.setAttribute("computer", computer);
-            this.getServletContext().getRequestDispatcher("/views/modifyComputer.jsp").forward(request, response);
-        } else {
-            this.getServletContext().getRequestDispatcher("/views/modifyComputer.jsp").forward(request, response);
         }
+        request.getRequestDispatcher("/WEB-INF/modifyComputer.jsp").forward(request, response);
     }
 
     @Override
+    @PostMapping
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String computerName = request.getParameter("computerName");
@@ -42,13 +52,12 @@ public class ModifyComputerServlet extends HttpServlet {
         String discontinued = request.getParameter("discontinued");
         String companyId = request.getParameter("companyId");
         String computerId = request.getParameter("id");
-
         try {
             if (computerId != null) {
-                ComputerController.updateComputer(computerId, computerName, introduced, discontinued, companyId);
+                computerController.updateComputer(computerId, computerName, introduced, discontinued, companyId);
                 request.setAttribute("success", computerName + " was successfully updated !");
             } else {
-                ComputerController.createComputer(computerName, introduced, discontinued, companyId);
+                computerController.createComputer(computerName, introduced, discontinued, companyId);
                 request.setAttribute("success", computerName + " was successfully added !");
             }
             doGet(request, response);
