@@ -37,5 +37,4 @@ public class WebConfig implements WebMvcConfigurer {
     public HikariDataSource getDataSource() {
         return new HikariDataSource(new HikariConfig("/db.properties"));
     }
-
 }

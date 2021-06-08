@@ -41,6 +41,7 @@ public class ComputerService {
      * @param companyInstance
      */
     public void setCompanyInstance(CompanyDAO companyInstance) {
+        this.companyService = new CompanyService();
         this.companyService.setCompanyInstance(companyInstance);
     }
 
