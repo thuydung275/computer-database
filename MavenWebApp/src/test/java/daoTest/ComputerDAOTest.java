@@ -53,14 +53,14 @@ public class ComputerDAOTest {
     @Test
     public void testCreateComputerShouldReturnTrue() {
         Computer computerToCreate = new Computer.ComputerBuilder().withName(NEW_COMPUTER_NAME).build();
-        Assert.assertTrue(computerRepository.create(computerToCreate));
+        Assert.assertEquals(computerRepository.create(computerToCreate).getName(), computerToCreate.getName());
     }
 
     @Test
     public void testUpdateComputerShouldReturnTrue() {
         Computer computer = computerRepository.findById(FIND_COMPUTER_BY_ID).get();
         computer.setName(UPDATE_COMPUTER_NAME);
-        Assert.assertTrue(computerRepository.update(computer));
+        Assert.assertEquals(UPDATE_COMPUTER_NAME, computerRepository.update(computer).getName());
     }
 
     @Test

@@ -6,15 +6,18 @@ import java.util.Optional;
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.excilys.mapper.CompanyMapper;
 import com.excilys.model.Company;
+import com.excilys.validator.CustomException;
 
 @Repository
 public class CompanyRepository {
 
     private JdbcTemplate jdbcTemplate;
+    private CompanyMapper companyMapper;
     private static Logger log = Logger.getLogger(CompanyRepository.class);
 
     private static final String FIND_BY_ID = "SELECT company.id, company.name FROM company WHERE company.id = ?";
@@ -22,20 +25,14 @@ public class CompanyRepository {
     private static final String DELETE_COMPANY = "DELETE FROM company WHERE id = ?";
     private static final String DELETE_COMPUTER = "DELETE FROM computer WHERE company_id = ?";
 
-    RowMapper<Company> rowMapper = (rs, rowNum) -> {
-        Company company = new Company.CompanyBuilder().build();
-        company.setId(rs.getInt("company.id"));
-        company.setName(rs.getString("company.name"));
-        return company;
-    };
-
-    public CompanyRepository(JdbcTemplate jdbcTemplate) {
+    public CompanyRepository(JdbcTemplate jdbcTemplate, CompanyMapper companyMapper) {
         this.jdbcTemplate = jdbcTemplate;
+        this.companyMapper = companyMapper;
     }
 
     public List<Company> findAll() {
         try {
-            return this.jdbcTemplate.query(FIND_ALL, rowMapper);
+            return this.jdbcTemplate.query(FIND_ALL, companyMapper);
         } catch (DataAccessException ex) {
             log.error(ex.getMessage());
         }
@@ -44,37 +41,27 @@ public class CompanyRepository {
 
     public Optional<Company> findById(int id) {
         try {
-            return Optional.ofNullable(this.jdbcTemplate.queryForObject(FIND_BY_ID, rowMapper, id));
+            return Optional.ofNullable(this.jdbcTemplate.queryForObject(FIND_BY_ID, companyMapper, id));
         } catch (DataAccessException ex) {
             log.error(ex.getMessage());
         }
         return Optional.ofNullable(null);
     }
 
+    @Transactional
     public boolean delete(int idCompany) {
         boolean deleted = false;
-
-//        try (Connection connection = dataSource.getConnection()) {
-//            connection.setAutoCommit(false);
-//            try (PreparedStatement computerPs = connection.prepareStatement(DELETE_COMPUTER);
-//                    PreparedStatement companyPs = connection.prepareStatement(DELETE_COMPANY)) {
-//                computerPs.setInt(1, companyId);
-//                companyPs.setInt(1, companyId);
-//                computerPs.executeUpdate();
-//                if (companyPs.executeUpdate() == 1) {
-//                    deleted = true;
-//                }
-//            } catch (SQLException sqle) {
-//                connection.rollback();
-//                log.error(sqle.getMessage());
-//            } finally {
-//                connection.setAutoCommit(true);
-//            }
-//
-//        } catch (SQLException sqle) {
-//            log.error(sqle.getMessage());
-//        }
+        try {
+            jdbcTemplate.update(DELETE_COMPUTER, idCompany);
+            int statut = jdbcTemplate.update(DELETE_COMPANY, idCompany);
+            if (statut == 1) {
+                deleted = true;
+            } else {
+                throw new CustomException("Fail to delete company !");
+            }
+        } catch (DataAccessException ex) {
+            log.error(ex.getMessage());
+        }
         return deleted;
     }
-
 }

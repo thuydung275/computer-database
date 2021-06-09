@@ -1,6 +1,8 @@
 package com.excilys.repository;
 
 import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -9,16 +11,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import com.excilys.model.Company;
+import com.excilys.mapper.ComputerMapper;
 import com.excilys.model.Computer;
 
 @Repository
 public class ComputerRepository {
 
     private JdbcTemplate jdbcTemplate;
+    private ComputerMapper computerMapper;
     private static Logger log = Logger.getLogger(ComputerRepository.class);
 
     private static final String FIND_BY_ID = "SELECT computer.id, computer.name, computer.introduced, computer.discontinued, computer.company_id, company.name FROM computer LEFT JOIN company ON computer.company_id = company.id WHERE computer.id = ?";
@@ -27,31 +31,14 @@ public class ComputerRepository {
     private static final String UPDATE_COMPUTER = "UPDATE computer SET name = ?, introduced = ?, discontinued = ?, company_id = ? WHERE id = ? ";
     private static final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?";
 
-    RowMapper<Computer> rowMapper = (rs, rowNum) -> {
-        Computer computer = new Computer.ComputerBuilder().build();
-        computer.setId(rs.getInt("computer.id"));
-        computer.setName(rs.getString("computer.name"));
-        if (rs.getDate("computer.introduced") != null) {
-            computer.setIntroduced(rs.getDate("computer.introduced").toLocalDate());
-        }
-        if (rs.getDate("computer.discontinued") != null) {
-            computer.setDiscontinued(rs.getDate("computer.discontinued").toLocalDate());
-        }
-        if (rs.getInt("computer.company_id") != 0) {
-            Company company = new Company.CompanyBuilder().withId(rs.getInt("computer.company_id"))
-                    .withName(rs.getString("company.name")).build();
-            computer.setCompany(company);
-        }
-        return computer;
-    };
-
-    public ComputerRepository(JdbcTemplate jdbcTemplate) {
+    public ComputerRepository(JdbcTemplate jdbcTemplate, ComputerMapper computerMapper) {
         this.jdbcTemplate = jdbcTemplate;
+        this.computerMapper = computerMapper;
     }
 
     public List<Computer> findAll() {
         try {
-            return this.jdbcTemplate.query(FIND_ALL, rowMapper);
+            return this.jdbcTemplate.query(FIND_ALL, computerMapper);
         } catch (DataAccessException ex) {
             log.error(ex.getMessage());
         }
@@ -74,9 +61,10 @@ public class ComputerRepository {
         query += ";";
         try {
             if (criteria.containsKey("name") && StringUtils.isNotBlank(criteria.get("name"))) {
-                return this.jdbcTemplate.query(query, rowMapper, criteria.get("name"), criteria.get("name"));
+                return this.jdbcTemplate.query(query, computerMapper, "%" + criteria.get("name") + "%",
+                        "%" + criteria.get("name") + "%");
             } else {
-                return this.jdbcTemplate.query(query, rowMapper);
+                return this.jdbcTemplate.query(query, computerMapper);
             }
         } catch (DataAccessException ex) {
             log.error(ex.getMessage());
@@ -86,39 +74,49 @@ public class ComputerRepository {
 
     public Optional<Computer> findById(int id) {
         try {
-            return Optional.ofNullable(this.jdbcTemplate.queryForObject(FIND_BY_ID, rowMapper, id));
+            return Optional.ofNullable(this.jdbcTemplate.queryForObject(FIND_BY_ID, computerMapper, id));
         } catch (DataAccessException ex) {
             log.error(ex.getMessage());
         }
         return Optional.ofNullable(null);
     }
 
-    public boolean create(Computer computer) {
-        Integer companyId = computer.getCompany() != null ? computer.getCompany().getId() : null;
+    public Computer create(Computer computer) {
         Date introduced = computer.getIntroduced() != null ? java.sql.Date.valueOf(computer.getIntroduced()) : null;
         Date discontinued = computer.getDiscontinued() != null ? java.sql.Date.valueOf(computer.getDiscontinued())
                 : null;
+        Integer companyId = computer.getCompany() != null ? computer.getCompany().getId() : null;
         try {
-            return this.jdbcTemplate.update(CREATE_COMPUTER, computer.getName(), introduced, discontinued,
-                    companyId) == 1;
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+
+            this.jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(CREATE_COMPUTER, Statement.RETURN_GENERATED_KEYS);
+                int i = 1;
+                ps.setString(i++, computer.getName());
+                ps.setDate(i++, introduced);
+                ps.setDate(i++, discontinued);
+                ps.setObject(i++, companyId);
+                return ps;
+            }, keyHolder);
+            computer.setId(keyHolder.getKey().intValue());
         } catch (DataAccessException ex) {
             log.error(ex.getMessage());
         }
-        return false;
+        return computer;
     }
 
-    public boolean update(Computer computer) {
+    public Computer update(Computer computer) {
         Integer companyId = computer.getCompany() != null ? computer.getCompany().getId() : null;
         Date introduced = computer.getIntroduced() != null ? java.sql.Date.valueOf(computer.getIntroduced()) : null;
         Date discontinued = computer.getDiscontinued() != null ? java.sql.Date.valueOf(computer.getDiscontinued())
                 : null;
         try {
-            return this.jdbcTemplate.update(UPDATE_COMPUTER, computer.getName(), introduced, discontinued, companyId,
-                    computer.getId()) == 1;
+            this.jdbcTemplate.update(UPDATE_COMPUTER, computer.getName(), introduced, discontinued, companyId,
+                    computer.getId());
         } catch (DataAccessException ex) {
             log.error(ex.getMessage());
         }
-        return false;
+        return computer;
     }
 
     public boolean delete(Integer id) {

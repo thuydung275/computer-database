@@ -8,6 +8,9 @@ public class CompanyDTO {
     private String id;
     private String name;
 
+    public CompanyDTO() {
+    }
+
     private CompanyDTO(CompanyDTOBuilder builder) {
         this.id = builder.id;
         this.name = builder.name;

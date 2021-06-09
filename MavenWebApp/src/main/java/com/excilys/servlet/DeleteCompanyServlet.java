@@ -1,37 +1,30 @@
 package com.excilys.servlet;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.view.RedirectView;
 
-import com.excilys.controller.CompanyController;
+import com.excilys.service.CompanyService;
 
 @Controller
-@RequestMapping("/company/delete")
-public class DeleteCompanyServlet extends HttpServlet {
+public class DeleteCompanyServlet {
 
-    private CompanyController companyController;
+    private CompanyService companyService;
     private static final long serialVersionUID = 1L;
     private static Logger log = Logger.getLogger(DeleteCompanyServlet.class);
 
-    public DeleteCompanyServlet(CompanyController companyController) {
-        this.companyController = companyController;
+    public DeleteCompanyServlet(CompanyService companyService) {
+        this.companyService = companyService;
     }
 
-    @Override
-    @PostMapping
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String idCompany = request.getParameter("id");
-        companyController.deleteCompany(idCompany);
-        response.sendRedirect(request.getContextPath() + "/computer/list");
+    @PostMapping("/company/delete")
+    protected RedirectView deleteCompany(@RequestParam(value = "id", required = false) String idCompany) {
+        if (idCompany != null && StringUtils.isNumeric(idCompany)) {
+            companyService.delete(Integer.parseInt(idCompany));
+        }
+        return new RedirectView("/computer/list", true);
     }
 }

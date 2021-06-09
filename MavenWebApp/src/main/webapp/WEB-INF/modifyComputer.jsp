@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -24,7 +25,7 @@
                 <div class="col-xs-8 col-xs-offset-2 box">
                    
                     <c:choose>
-					  <c:when test="${not empty computer}">
+					  <c:when test="${not empty computer.id }">
 					    <div class="label label-default pull-right">
 	                        id: ${computer.id}
 	                    </div>
@@ -46,29 +47,26 @@
 					  ${error}
 					</div>
 					</c:if>
-					<c:if test="${not empty computer}" ><c:set var="url" value="edit?id=${computer.id }"/></c:if>
-					<c:if test="${empty computer}" ><c:set var="url" value="edit"/></c:if>
-                    <form action="${pageContext.request.contextPath}/computer/${url}" method="POST" id="addComputer">
+                    <form:form action="${pageContext.request.contextPath}/computer/edit${not empty computer.id ? '?id='.concat(computer.id) : ''}" method="POST" id="addComputer" modelAttribute="computer">
                         <fieldset>
-                            <input type="hidden" id="computerId" value="${computer.id}">
                             <div class="form-group">
-                                <label class="control-label" for="computerName">Computer name</label>
-                                <input type="text" class="form-control" id="computerName" name="computerName" placeholder="Computer name" value="${not empty computer ? computer.name : ''}">
+                                <form:label class="control-label" path="name" for="computerName">Computer name</form:label>
+                                <form:input type="text" class="form-control" id="computerName" path="name" name="name" placeholder="Computer name" value="${not empty computer ? computer.name : ''}" />
                                 <span class="help-block hidden">Computer name must not be empty</span>
                             </div>
                             <div class="form-group">
-                                <label class="control-label" for="introduced">Introduced date</label>
-                                <input type="date" class="form-control" id="introduced" name="introduced" placeholder="Introduced date" value="${not empty computer.introduced ? computer.introduced : ''}">
+                                <form:label class="control-label" path="introduced" for="introduced">Introduced date</form:label>
+                                <form:input type="date" class="form-control" id="introduced" path="introduced" name="introduced" placeholder="Introduced date" value="${not empty computer.introduced ? computer.introduced : ''}" />
                                 <span class="help-block hidden">Introduced date must not be empty when discontinued date exist !</span>
                             </div>
                             <div class="form-group">
-                                <label class="control-label" for="discontinued">Discontinued date</label>
-                                <input type="date" class="form-control" id="discontinued" name="discontinued" placeholder="Discontinued date" value="${not empty computer.discontinued ? computer.discontinued : ''}">
+                                <form:label class="control-label" path="discontinued" for="discontinued">Discontinued date</form:label>
+                                <form:input type="date" class="form-control" id="discontinued" path="discontinued" name="discontinued" placeholder="Discontinued date" value="${not empty computer.discontinued ? computer.discontinued : ''}" />
                                 <span class="help-block hidden">Discontinued date must be greater than introduced date !</span>
                             </div>
                             <div class="form-group">
-                                <label for="companyId">Company</label>
-                                <select class="form-control" id="companyId" name="companyId">
+                                <form:label path="companyId" for="companyId">Company</form:label>
+                                <form:select class="form-control" id="companyId" path="companyId" name="companyId">
 	                                <c:choose>
 				                      <c:when test="${not empty computer && not empty computer.companyId}">
 				                        <option value="${computer.companyId}">${computer.companyName}</option>
@@ -80,15 +78,15 @@
                                     <c:forEach var="company" items="${companyList}">
                                         <option value="${company.id}">${company.name}</option>
                                     </c:forEach>
-                                </select>
+                                </form:select>
                             </div>                  
                         </fieldset>
                         <div class="actions pull-right">
-                            <input type="submit" value="${not empty computer ? 'Edit' : 'Add'}" class="btn btn-primary disabled" id="submitBtn">
+                            <input type="submit" value="${not empty computer.id ? 'Edit' : 'Add'}" class="btn btn-primary disabled" id="submitBtn">
                             or
                             <a href="${pageContext.request.contextPath}/computer/list" class="btn btn-default">Cancel</a>
                         </div>
-                    </form>
+                    </form:form>
                 </div>
             </div>
         </div>

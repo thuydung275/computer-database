@@ -44,7 +44,7 @@ public class CompanyDAOTest {
     public void testDeleteCompanyShouldReturnTrue() {
         Optional<Company> opt = companyRepository.findById(FIND_COMPANY_BY_ID);
         boolean deleted = companyRepository.delete(opt.get().getId());
-        Assert.assertTrue(true);
+        Assert.assertTrue(deleted);
     }
 
 }

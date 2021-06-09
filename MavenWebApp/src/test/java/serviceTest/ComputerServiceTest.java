@@ -1,6 +1,7 @@
 package serviceTest;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,10 +45,7 @@ public class ComputerServiceTest {
     private Company trueCompany;
 
     private static final int FAKE_COMPUTER_ID = 1242354;
-    private static final int TOTAL_COMPUTER = 574;
     private static final int FIND_COMPUTER_BY_ID = 1;
-    private static final int LIMIT_PER_PAGE = 3;
-    private static final int PAGE_NUMBER = 1;
 
     @Before
     public void init() {
@@ -85,20 +83,20 @@ public class ComputerServiceTest {
     }
 
     @Test
-    public void testCreateComputerShouldReturnTrue() {
+    public void testCreateComputerShouldReturnComputer() {
         Computer mockComputer = new Computer.ComputerBuilder().withName("mock computer").build();
-        when(computerRepository.create(mockComputer)).thenReturn(true);
-        assertTrue(computerService.create(mockComputer));
+        when(computerRepository.create(mockComputer)).thenReturn(mockComputer);
+        assertNotNull(computerService.create(mockComputer));
         verify(computerRepository).create(mockComputer);
     }
 
     @Test
-    public void testUpdateComputerShouldReturnTrue() {
+    public void testUpdateComputerShouldReturnComputer() {
         Computer mockComputer = Computer.copy(trueComputer);
         mockComputer.setName("mock computer");
-        when(computerRepository.update(mockComputer)).thenReturn(true);
+        when(computerRepository.update(mockComputer)).thenReturn(mockComputer);
         when(computerRepository.findById(mockComputer.getId())).thenReturn(Optional.ofNullable(mockComputer));
-        assertTrue(computerService.update(mockComputer));
+        assertNotNull(computerService.update(mockComputer));
         verify(computerRepository).update(mockComputer);
     }
 
@@ -106,7 +104,7 @@ public class ComputerServiceTest {
     public void testUpdateComputerShouldThrowNotExistComputerException() {
         Computer mockComputer = Computer.copy(trueComputer);
         mockComputer.setName("mock computer");
-        when(computerRepository.update(mockComputer)).thenReturn(true);
+        when(computerRepository.update(mockComputer)).thenReturn(mockComputer);
         when(computerRepository.findById(mockComputer.getId())).thenReturn(Optional.ofNullable(null));
         exceptionRule.expect(CustomException.class);
         exceptionRule.expectMessage("Computer does not exist in our database");
@@ -121,7 +119,7 @@ public class ComputerServiceTest {
         Computer mockComputer = Computer.copy(trueComputer);
         mockComputer.setName("mock computer");
         when(computerRepository.delete(mockComputer.getId())).thenReturn(true);
-        assertTrue(computerService.delete(mockComputer));
+        assertTrue(computerService.delete(mockComputer.getId()));
         verify(computerRepository).delete(mockComputer.getId());
     }
 }

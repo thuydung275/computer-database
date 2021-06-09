@@ -1,72 +1,91 @@
 package com.excilys.servlet;
 
-import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
-import com.excilys.controller.CompanyController;
-import com.excilys.controller.ComputerController;
+import com.excilys.dto.CompanyDTO;
 import com.excilys.dto.ComputerDTO;
+import com.excilys.mapper.CompanyMapper;
+import com.excilys.mapper.ComputerMapper;
+import com.excilys.service.CompanyService;
+import com.excilys.service.ComputerService;
+import com.excilys.validator.ComputerValidator;
 import com.excilys.validator.CustomException;
 
 @Controller
-@RequestMapping("/computer/edit")
-public class ModifyComputerServlet extends HttpServlet {
+public class ModifyComputerServlet {
 
-    private ComputerController computerController;
-    private CompanyController companyController;
+    private CompanyService companyService;
+    private ComputerService computerService;
+    private ComputerMapper computerMapper;
+    private CompanyMapper companyMapper;
+    private ComputerValidator computerValidator;
     private static final long serialVersionUID = 1L;
     private static Logger log = Logger.getLogger(ModifyComputerServlet.class);
 
-    public ModifyComputerServlet(ComputerController computerController, CompanyController companyController) {
-        this.computerController = computerController;
-        this.companyController = companyController;
+    public ModifyComputerServlet(CompanyService companyService, ComputerService computerService,
+            ComputerMapper computerMapper, CompanyMapper companyMapper, ComputerValidator computerValidator) {
+        this.companyService = companyService;
+        this.computerService = computerService;
+        this.computerMapper = computerMapper;
+        this.companyMapper = companyMapper;
+        this.computerValidator = computerValidator;
     }
 
-    @Override
-    @GetMapping
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        request.setAttribute("companyList", companyController.getListCompanies());
-        if (request.getParameter("id") != null) {
-            String computerId = request.getParameter("id");
-            ComputerDTO computer = computerController.findComputer(computerId);
-            request.setAttribute("computer", computer);
+    @GetMapping("/computer/edit")
+    protected ModelAndView getView(@RequestParam(value = "id", required = false) String computerId) {
+        ComputerDTO computerDTO = new ComputerDTO.ComputerDTOBuilder().build();
+        if (computerId != null && StringUtils.isNumeric(computerId)) {
+            computerDTO = computerMapper.mapFromComputerToDTO(computerService.findById(Integer.parseInt(computerId)));
         }
-        request.getRequestDispatcher("/WEB-INF/modifyComputer.jsp").forward(request, response);
+        ModelAndView modelAndView = new ModelAndView("modifyComputer", "computer", computerDTO);
+        List<CompanyDTO> companyDTOList = companyService.getList().stream()
+                .map(c -> companyMapper.mapFromCompanyToDTO(c)).collect(Collectors.toList());
+        modelAndView.addObject("companyList", companyDTOList);
+        return modelAndView;
     }
 
-    @Override
-    @PostMapping
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String computerName = request.getParameter("computerName");
-        String introduced = request.getParameter("introduced");
-        String discontinued = request.getParameter("discontinued");
-        String companyId = request.getParameter("companyId");
-        String computerId = request.getParameter("id");
+    @PostMapping("/computer/edit")
+    protected RedirectView editComputer(@ModelAttribute("computer") ComputerDTO computerDTO,
+            RedirectAttributes redirectAttributes) {
         try {
-            if (computerId != null) {
-                computerController.updateComputer(computerId, computerName, introduced, discontinued, companyId);
-                request.setAttribute("success", computerName + " was successfully updated !");
+            String successMessage = " was successfully ";
+            if (computerDTO.getId() != null) {
+                computerDTO = this.updateComputer(computerDTO);
+                successMessage += "updated !";
             } else {
-                computerController.createComputer(computerName, introduced, discontinued, companyId);
-                request.setAttribute("success", computerName + " was successfully added !");
+                computerDTO = this.createComputer(computerDTO);
+                successMessage += "added !";
             }
-            doGet(request, response);
+            redirectAttributes.addFlashAttribute("success", computerDTO.getName() + successMessage);
+            redirectAttributes.addAttribute("id", computerDTO.getId());
         } catch (CustomException ex) {
             log.error(ex.getMessage());
-            request.setAttribute("error", ex.getMessage());
-            doGet(request, response);
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
+        return new RedirectView("/computer/edit", true);
+    }
+
+    private ComputerDTO createComputer(ComputerDTO computerDTO) throws CustomException {
+        computerValidator.validateComputerDTO(computerDTO);
+        return computerMapper
+                .mapFromComputerToDTO(computerService.create(computerMapper.mapFromDTOtoComputer(computerDTO)));
+    }
+
+    private ComputerDTO updateComputer(ComputerDTO computerDTO) {
+        computerValidator.validateComputerDTO(computerDTO);
+        return computerMapper
+                .mapFromComputerToDTO(computerService.update(computerMapper.mapFromDTOtoComputer(computerDTO)));
     }
 }

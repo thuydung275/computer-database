@@ -39,11 +39,11 @@ public class ComputerService {
         return opt.map(c -> c).orElse(null);
     }
 
-    public boolean create(Computer computer) {
+    public Computer create(Computer computer) {
         return computerRepository.create(computer);
     }
 
-    public boolean update(Computer computer) {
+    public Computer update(Computer computer) {
         Optional<Computer> computerFromDB = computerRepository.findById(computer.getId());
         if (!computerFromDB.isPresent()) {
             throw new CustomException("Computer does not exist in our database", CustomException.ER_NOT_FOUND);
@@ -52,7 +52,7 @@ public class ComputerService {
 
     }
 
-    public boolean delete(Computer computer) {
-        return computerRepository.delete(computer.getId());
+    public boolean delete(Integer id) {
+        return computerRepository.delete(id);
     }
 }

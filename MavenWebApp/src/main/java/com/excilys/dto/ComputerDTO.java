@@ -12,6 +12,9 @@ public class ComputerDTO {
     private String companyId;
     private String companyName;
 
+    public ComputerDTO() {
+    }
+
     private ComputerDTO(ComputerDTOBuilder builder) {
         this.id = builder.id;
         this.name = builder.name;

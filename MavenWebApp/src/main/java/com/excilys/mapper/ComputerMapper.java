@@ -5,53 +5,15 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import com.excilys.dto.ComputerDTO;
 import com.excilys.model.Company;
-import com.excilys.model.Company.CompanyBuilder;
 import com.excilys.model.Computer;
-import com.excilys.model.Computer.ComputerBuilder;
 
 @Component
-public class ComputerMapper {
-    /**
-     *
-     * @param result
-     * @return Computer
-     * @throws SQLException
-     */
-    public Computer mapFromResultSetToComputer(ResultSet result) throws SQLException {
-        ComputerBuilder builder = new Computer.ComputerBuilder();
-
-        builder.withId(result.getInt("computer.id"));
-
-        if (result.getString("computer.name") != null) {
-            builder.withName(result.getString("computer.name"));
-        }
-
-        if (result.getDate("computer.introduced") != null) {
-            builder.withIntroduced(result.getDate("computer.introduced").toLocalDate());
-        }
-
-        if (result.getDate("computer.discontinued") != null) {
-            builder.withDiscontinued(result.getDate("computer.discontinued").toLocalDate());
-        }
-
-        // hydrate Company
-        if (result.getInt("computer.company_id") != 0) {
-            CompanyBuilder companyBuilder = new Company.CompanyBuilder().withId(result.getInt("computer.company_id"));
-            if (result.getString("company.name") != null) {
-                companyBuilder.withName(result.getString("company.name"));
-            }
-            Company company = companyBuilder.build();
-            builder.withCompany(company);
-        }
-
-        Computer computer = builder.build();
-        return computer;
-    }
-
+public class ComputerMapper implements RowMapper<Computer> {
     public Computer mapFromDTOtoComputer(ComputerDTO computerDTO) {
         Computer computer = new Computer.ComputerBuilder().build();
 
@@ -94,5 +56,24 @@ public class ComputerMapper {
             comDTO.setCompanyName(computer.getCompany().getName());
         }
         return comDTO;
+    }
+
+    @Override
+    public Computer mapRow(ResultSet rs, int rowNum) throws SQLException {
+        Computer computer = new Computer.ComputerBuilder().build();
+        computer.setId(rs.getInt("computer.id"));
+        computer.setName(rs.getString("computer.name"));
+        if (rs.getDate("computer.introduced") != null) {
+            computer.setIntroduced(rs.getDate("computer.introduced").toLocalDate());
+        }
+        if (rs.getDate("computer.discontinued") != null) {
+            computer.setDiscontinued(rs.getDate("computer.discontinued").toLocalDate());
+        }
+        if (rs.getInt("computer.company_id") != 0) {
+            Company company = new Company.CompanyBuilder().withId(rs.getInt("computer.company_id"))
+                    .withName(rs.getString("company.name")).build();
+            computer.setCompany(company);
+        }
+        return computer;
     }
 }

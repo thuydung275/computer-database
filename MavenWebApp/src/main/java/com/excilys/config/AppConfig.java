@@ -9,8 +9,8 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
-@ComponentScan(basePackages = { "com.excilys.servlet", "com.excilys.controller", "com.excilys.validator",
-        "com.excilys.mapper", "com.excilys.service", "com.excilys.repository" })
+@ComponentScan(basePackages = { "com.excilys.servlet", "com.excilys.validator", "com.excilys.mapper",
+        "com.excilys.service", "com.excilys.repository" })
 public class AppConfig {
 
     @Bean
