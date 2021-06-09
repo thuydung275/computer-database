@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,10 +18,13 @@ import com.excilys.controller.CompanyController;
 @RequestMapping("/company/delete")
 public class DeleteCompanyServlet extends HttpServlet {
 
-    @Autowired
     private CompanyController companyController;
     private static final long serialVersionUID = 1L;
     private static Logger log = Logger.getLogger(DeleteCompanyServlet.class);
+
+    public DeleteCompanyServlet(CompanyController companyController) {
+        this.companyController = companyController;
+    }
 
     @Override
     @PostMapping

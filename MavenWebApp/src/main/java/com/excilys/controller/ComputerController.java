@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.excilys.dto.ComputerDTO;
@@ -21,10 +20,17 @@ import com.excilys.validator.CustomException;
 @Component
 public class ComputerController {
 
-    @Autowired
     private ComputerService computerService;
-    @Autowired
     private ComputerMapper computerMapper;
+    private ComputerValidator computerValidator;
+    // TODO: make computerMapper inner member class
+
+    public ComputerController(ComputerService computerService, ComputerMapper computerMapper,
+            ComputerValidator computerValidator) {
+        this.computerService = computerService;
+        this.computerMapper = computerMapper;
+        this.computerValidator = computerValidator;
+    }
 
     private static Logger log = Logger.getLogger(ComputerController.class);
 
@@ -43,8 +49,9 @@ public class ComputerController {
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             totalItem = computerService.findByCriteria(nameToSearch).size();
         } else {
-            totalItem = computerService.getListComputers().size();
+            totalItem = computerService.getList().size();
         }
+
         int pageLimitMin = new Pagination(Pagination.PageLimit.MIN.getLimit(), 0, totalItem).getTotalPage();
         int pageLimitMid = new Pagination(Pagination.PageLimit.MID.getLimit(), 0, totalItem).getTotalPage();
         int pageLimitMax = new Pagination(Pagination.PageLimit.MAX.getLimit(), 0, totalItem).getTotalPage();
@@ -59,7 +66,7 @@ public class ComputerController {
         Pagination page = new Pagination(0);
 
         if (StringUtils.isBlank(name)) {
-            page.setTotalItem(computerService.getListComputers().size());
+            page.setTotalItem(computerService.getList().size());
         } else {
             Map<String, String> nameToSearch = criteria.entrySet().stream().filter(x -> x.getKey() == "name")
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -78,7 +85,7 @@ public class ComputerController {
             throws CustomException {
         ComputerDTO computerDTO = new ComputerDTO.ComputerDTOBuilder().withName(name).withIntroduced(introduced)
                 .withDiscontinued(discontinued).withCompanyId(companyId).build();
-        ComputerValidator.validateComputerDTO(computerDTO);
+        computerValidator.validateComputerDTO(computerDTO);
         Computer computer = computerMapper.mapFromDTOtoComputer(computerDTO);
         computerService.create(computer);
     }
@@ -91,7 +98,7 @@ public class ComputerController {
         }
         computerDTO = new ComputerDTO.ComputerDTOBuilder().withId(computerId).withName(computerName)
                 .withIntroduced(introduced).withDiscontinued(discontinued).withCompanyId(companyId).build();
-        ComputerValidator.validateComputerDTO(computerDTO);
+        computerValidator.validateComputerDTO(computerDTO);
         Computer computer = computerMapper.mapFromDTOtoComputer(computerDTO);
         computerService.update(computer);
     }
@@ -110,7 +117,7 @@ public class ComputerController {
             return result;
         } else {
             Arrays.asList(idList.split(",")).stream().forEach(
-                    id -> computerService.remove(new Computer.ComputerBuilder().withId(Integer.valueOf(id)).build()));
+                    id -> computerService.delete(new Computer.ComputerBuilder().withId(Integer.valueOf(id)).build()));
             result = true;
         }
         return result;

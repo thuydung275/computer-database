@@ -4,11 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.excilys.dao.CompanyDAO;
 import com.excilys.model.Company;
+import com.excilys.repository.CompanyRepository;
 
 /**
  *
@@ -18,67 +17,23 @@ import com.excilys.model.Company;
 @Service
 public class CompanyService {
 
-    @Autowired
-    private CompanyDAO companyInstance;
+    private CompanyRepository companyRepository;
     private static Logger log = Logger.getLogger(CompanyService.class);
 
-    public void setCompanyInstance(CompanyDAO companyInstance) {
-        this.companyInstance = companyInstance;
+    public CompanyService(CompanyRepository companyRepository) {
+        this.companyRepository = companyRepository;
     }
 
-    /**
-     *
-     * @param name
-     * @return Company
-     */
-    public Company findByName(String name) {
-        Optional<Company> opt = companyInstance.findByName(name);
-        if (opt.isPresent()) {
-            return opt.get();
-        }
-        return null;
-    }
-
-    /**
-     *
-     * @param id
-     * @return Company
-     */
     public Company findById(int id) {
-        Optional<Company> opt = companyInstance.findById(id);
-        if (opt.isPresent()) {
-            return opt.get();
-        }
-        return null;
+        Optional<Company> opt = companyRepository.findById(id);
+        return opt.map(c -> c).orElse(null);
     }
 
-    /**
-     *
-     * @return List<Company>
-     */
-    public List<Company> getListCompanies() {
-        return companyInstance.getList();
+    public List<Company> getList() {
+        return companyRepository.findAll();
     }
 
-    /**
-     *
-     * @return number of total companies
-     */
-    public int getCompanyNumber() {
-        return companyInstance.getList().size();
+    public boolean delete(int idCompany) {
+        return companyRepository.delete(idCompany);
     }
-
-    /**
-     *
-     * @param page
-     * @return List<Company>
-     */
-    public List<Company> getListPerPage(Pagination page) {
-        return companyInstance.getListPerPage(page);
-    }
-
-    public boolean deleteCompany(int idCompany) {
-        return companyInstance.delete(idCompany);
-    }
-
 }

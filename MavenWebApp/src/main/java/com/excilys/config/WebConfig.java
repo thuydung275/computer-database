@@ -15,8 +15,8 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan({ "com.excilys.service", "com.excilys.controller", "com.excilys.dao", "com.excilys.mapper",
-        "com.excilys.servlet" })
+@ComponentScan(basePackages = { "com.excilys.servlet", "com.excilys.controller", "com.excilys.validator",
+        "com.excilys.mapper", "com.excilys.service", "com.excilys.repository" })
 public class WebConfig implements WebMvcConfigurer {
 
     @Bean

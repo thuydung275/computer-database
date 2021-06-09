@@ -2,22 +2,25 @@ package com.excilys.validator;
 
 import java.time.LocalDate;
 
+import org.springframework.stereotype.Component;
+
 import com.excilys.dto.ComputerDTO;
 
+@Component
 public class ComputerValidator {
 
-    public static void validateComputerDTO(ComputerDTO computerDTO) throws CustomException {
+    public void validateComputerDTO(ComputerDTO computerDTO) throws CustomException {
         validateName(computerDTO.getName());
         validateDate(computerDTO.getIntroduced(), computerDTO.getDiscontinued());
     }
 
-    private static void validateName(String name) {
+    private void validateName(String name) {
         if (name == null || "".equals(name) || name.isEmpty()) {
             throw new CustomException("Name must not be empty !");
         }
     }
 
-    private static void validateDate(String introduced, String discontinued) {
+    private void validateDate(String introduced, String discontinued) {
         LocalDate introducedDate = null;
         LocalDate discontinuedDate = null;
 

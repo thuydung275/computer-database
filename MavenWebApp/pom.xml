@@ -33,6 +33,7 @@
     <spring-context.version>5.3.7</spring-context.version>
     <spring-webmvc.version>5.3.7</spring-webmvc.version>
     <spring-test.version>5.3.7</spring-test.version>
+    <spring-jdbc.version>5.3.7</spring-jdbc.version>
   </properties>
 
   <dependencies>
@@ -110,6 +111,11 @@
          <version>${spring-test.version}</version>
          <scope>test</scope>
     </dependency>
+	<dependency>
+	    <groupId>org.springframework</groupId>
+	    <artifactId>spring-jdbc</artifactId>
+	    <version>${spring-jdbc.version}</version>
+	</dependency>
    	
   </dependencies>
 
