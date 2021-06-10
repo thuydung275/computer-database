@@ -7,3 +7,6 @@ mvn archetype:generate -DarchetypeGroupId=org.apache.maven.archetypes -Darchetyp
 ## Run Maven
 
 mvn exec:java -Dexec.mainClass="App"
+
+## How Spring MVC Controller works
+![alt text](https://github.com/thuydung275/computer-database/blob/sprint5/springMVC.jpg?raw=true)

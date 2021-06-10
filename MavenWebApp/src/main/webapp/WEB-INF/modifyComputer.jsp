@@ -1,11 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <!DOCTYPE html>
 <html>
 <head>
-<title>Computer Database</title>
+<title><fmt:message key="txt.title"/></title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Bootstrap -->
 <link href="${pageContext.request.contextPath}/css/bootstrap.min.css" rel="stylesheet" media="screen">
@@ -15,7 +16,7 @@
 <body> 
     <header class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="${pageContext.request.contextPath}/computer/list"> Application - Computer Database </a>
+            <a class="navbar-brand" href="${pageContext.request.contextPath}/computer/list"> <fmt:message key="txt.home"/> </a>
         </div>
     </header>
 
@@ -29,10 +30,10 @@
 					    <div class="label label-default pull-right">
 	                        id: ${computer.id}
 	                    </div>
-	                    <h1>Edit Computer</h1>
+	                    <h1><fmt:message key="txt.editComputer"/></h1>
 					  </c:when>
 					  <c:otherwise>
-					    <h1>Add Computer</h1>
+					    <h1><fmt:message key="txt.addComputer"/></h1>
 					  </c:otherwise>
                     </c:choose>
                     <c:if test="${not empty success}">
@@ -50,22 +51,22 @@
                     <form:form action="${pageContext.request.contextPath}/computer/edit${not empty computer.id ? '?id='.concat(computer.id) : ''}" method="POST" id="addComputer" modelAttribute="computer">
                         <fieldset>
                             <div class="form-group">
-                                <form:label class="control-label" path="name" for="computerName">Computer name</form:label>
+                                <form:label class="control-label" path="name" for="computerName"><fmt:message key="label.computerName"/></form:label>
                                 <form:input type="text" class="form-control" id="computerName" path="name" name="name" placeholder="Computer name" value="${not empty computer ? computer.name : ''}" />
-                                <span class="help-block hidden">Computer name must not be empty</span>
+                                <span class="help-block hidden"><fmt:message key="error.name.required"/></span>
                             </div>
                             <div class="form-group">
-                                <form:label class="control-label" path="introduced" for="introduced">Introduced date</form:label>
+                                <form:label class="control-label" path="introduced" for="introduced"><fmt:message key="label.introduced"/></form:label>
                                 <form:input type="date" class="form-control" id="introduced" path="introduced" name="introduced" placeholder="Introduced date" value="${not empty computer.introduced ? computer.introduced : ''}" />
-                                <span class="help-block hidden">Introduced date must not be empty when discontinued date exist !</span>
+                                <span class="help-block hidden"><fmt:message key="error.introduced.invalid"/></span>
                             </div>
                             <div class="form-group">
-                                <form:label class="control-label" path="discontinued" for="discontinued">Discontinued date</form:label>
+                                <form:label class="control-label" path="discontinued" for="discontinued"><fmt:message key="label.discontinued"/></form:label>
                                 <form:input type="date" class="form-control" id="discontinued" path="discontinued" name="discontinued" placeholder="Discontinued date" value="${not empty computer.discontinued ? computer.discontinued : ''}" />
-                                <span class="help-block hidden">Discontinued date must be greater than introduced date !</span>
+                                <span class="help-block hidden"><fmt:message key="error.discontinued.invalid"/></span>
                             </div>
                             <div class="form-group">
-                                <form:label path="companyId" for="companyId">Company</form:label>
+                                <form:label path="companyId" for="companyId"><fmt:message key="label.company"/></form:label>
                                 <form:select class="form-control" id="companyId" path="companyId" name="companyId">
 	                                <c:choose>
 				                      <c:when test="${not empty computer && not empty computer.companyId}">
@@ -82,9 +83,15 @@
                             </div>                  
                         </fieldset>
                         <div class="actions pull-right">
-                            <input type="submit" value="${not empty computer.id ? 'Edit' : 'Add'}" class="btn btn-primary disabled" id="submitBtn">
-                            or
-                            <a href="${pageContext.request.contextPath}/computer/list" class="btn btn-default">Cancel</a>
+                            <c:if test="${ empty computer.id }">
+                                <input type="submit" value="<fmt:message key="txt.add"/>" class="btn btn-primary disabled" id="submitBtn">
+                            </c:if>
+                            <c:if test="${ not empty computer.id }">
+                                <input type="submit" value="<fmt:message key="txt.edit"/>" class="btn btn-primary disabled" id="submitBtn">
+                            </c:if>
+                            
+                            <fmt:message key="txt.or"/>
+                            <a href="${pageContext.request.contextPath}/computer/list" class="btn btn-default"><fmt:message key="txt.cancel"/></a>
                         </div>
                     </form:form>
                 </div>
