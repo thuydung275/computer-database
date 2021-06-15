@@ -1,5 +1,6 @@
 package com.excilys.service;
 
+import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -7,8 +8,10 @@ import java.util.Optional;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import com.excilys.aop.proxy.TimedInvocationHandler;
 import com.excilys.model.Computer;
 import com.excilys.repository.ComputerRepository;
+import com.excilys.repository.ComputerRepositoryInterface;
 import com.excilys.validator.CustomException;
 
 /**
@@ -19,40 +22,43 @@ import com.excilys.validator.CustomException;
 @Service
 public class ComputerService {
 
-    private ComputerRepository computerRepository;
+    private ComputerRepositoryInterface computerRepositoryInterface;
     private static Logger log = Logger.getLogger(ComputerService.class);
 
     public ComputerService(ComputerRepository computerRepository) {
-        this.computerRepository = computerRepository;
+        ComputerRepositoryInterface computerRepositoryInterface = (ComputerRepositoryInterface) Proxy.newProxyInstance(
+                ComputerRepositoryInterface.class.getClassLoader(), new Class[] { ComputerRepositoryInterface.class },
+                new TimedInvocationHandler(computerRepository));
+        this.computerRepositoryInterface = computerRepositoryInterface;
     }
 
     public List<Computer> getList() {
-        return computerRepository.findAll();
+        return computerRepositoryInterface.findAll();
     }
 
     public List<Computer> findByCriteria(Map<String, String> criteria) {
-        return computerRepository.findByCriteria(criteria);
+        return computerRepositoryInterface.findByCriteria(criteria);
     }
 
     public Computer findById(int id) {
-        Optional<Computer> opt = computerRepository.findById(id);
+        Optional<Computer> opt = computerRepositoryInterface.findById(id);
         return opt.map(c -> c).orElse(null);
     }
 
     public Computer create(Computer computer) {
-        return computerRepository.create(computer);
+        return computerRepositoryInterface.create(computer);
     }
 
     public Computer update(Computer computer) {
-        Optional<Computer> computerFromDB = computerRepository.findById(computer.getId());
+        Optional<Computer> computerFromDB = computerRepositoryInterface.findById(computer.getId());
         if (!computerFromDB.isPresent()) {
             throw new CustomException("Computer does not exist in our database", CustomException.ER_NOT_FOUND);
         }
-        return computerRepository.update(computer);
+        return computerRepositoryInterface.update(computer);
 
     }
 
     public boolean delete(Integer id) {
-        return computerRepository.delete(id);
+        return computerRepositoryInterface.delete(id);
     }
 }

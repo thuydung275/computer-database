@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -24,6 +25,7 @@ import com.excilys.validator.ComputerValidator;
 import com.excilys.validator.CustomException;
 
 @Controller
+@RequestMapping("/computer/edit")
 public class ModifyComputerServlet {
 
     private CompanyService companyService;
@@ -43,7 +45,7 @@ public class ModifyComputerServlet {
         this.computerValidator = computerValidator;
     }
 
-    @GetMapping("/computer/edit")
+    @GetMapping
     protected ModelAndView getView(@RequestParam(value = "id", required = false) String computerId) {
         ComputerDTO computerDTO = new ComputerDTO.ComputerDTOBuilder().build();
         if (computerId != null && StringUtils.isNumeric(computerId)) {
@@ -56,7 +58,7 @@ public class ModifyComputerServlet {
         return modelAndView;
     }
 
-    @PostMapping("/computer/edit")
+    @PostMapping
     protected RedirectView editComputer(@ModelAttribute("computer") ComputerDTO computerDTO,
             RedirectAttributes redirectAttributes) {
         try {

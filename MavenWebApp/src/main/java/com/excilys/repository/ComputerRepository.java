@@ -15,11 +15,12 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.excilys.aop.Timed;
 import com.excilys.mapper.ComputerMapper;
 import com.excilys.model.Computer;
 
 @Repository
-public class ComputerRepository {
+public class ComputerRepository implements ComputerRepositoryInterface {
 
     private JdbcTemplate jdbcTemplate;
     private ComputerMapper computerMapper;
@@ -36,6 +37,8 @@ public class ComputerRepository {
         this.computerMapper = computerMapper;
     }
 
+    @Timed
+    @Override
     public List<Computer> findAll() {
         try {
             return this.jdbcTemplate.query(FIND_ALL, computerMapper);
@@ -45,6 +48,8 @@ public class ComputerRepository {
         return null;
     }
 
+    @Timed
+    @Override
     public List<Computer> findByCriteria(Map<String, String> criteria) {
         String query = FIND_ALL;
 
@@ -72,6 +77,8 @@ public class ComputerRepository {
         return null;
     }
 
+    @Timed
+    @Override
     public Optional<Computer> findById(int id) {
         try {
             return Optional.ofNullable(this.jdbcTemplate.queryForObject(FIND_BY_ID, computerMapper, id));
@@ -81,6 +88,8 @@ public class ComputerRepository {
         return Optional.ofNullable(null);
     }
 
+    @Timed
+    @Override
     public Computer create(Computer computer) {
         Date introduced = computer.getIntroduced() != null ? java.sql.Date.valueOf(computer.getIntroduced()) : null;
         Date discontinued = computer.getDiscontinued() != null ? java.sql.Date.valueOf(computer.getDiscontinued())
@@ -105,6 +114,8 @@ public class ComputerRepository {
         return computer;
     }
 
+    @Timed
+    @Override
     public Computer update(Computer computer) {
         Integer companyId = computer.getCompany() != null ? computer.getCompany().getId() : null;
         Date introduced = computer.getIntroduced() != null ? java.sql.Date.valueOf(computer.getIntroduced()) : null;
@@ -119,6 +130,8 @@ public class ComputerRepository {
         return computer;
     }
 
+    @Timed
+    @Override
     public boolean delete(Integer id) {
         try {
             return this.jdbcTemplate.update(DELETE_COMPUTER, id) == 1;

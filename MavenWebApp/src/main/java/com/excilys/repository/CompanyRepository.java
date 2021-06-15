@@ -9,12 +9,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.excilys.aop.Timed;
 import com.excilys.mapper.CompanyMapper;
 import com.excilys.model.Company;
 import com.excilys.validator.CustomException;
 
 @Repository
-public class CompanyRepository {
+public class CompanyRepository implements CompanyRepositoryInterface {
 
     private JdbcTemplate jdbcTemplate;
     private CompanyMapper companyMapper;
@@ -30,6 +31,8 @@ public class CompanyRepository {
         this.companyMapper = companyMapper;
     }
 
+    @Timed
+    @Override
     public List<Company> findAll() {
         try {
             return this.jdbcTemplate.query(FIND_ALL, companyMapper);
@@ -39,6 +42,8 @@ public class CompanyRepository {
         return null;
     }
 
+    @Timed
+    @Override
     public Optional<Company> findById(int id) {
         try {
             return Optional.ofNullable(this.jdbcTemplate.queryForObject(FIND_BY_ID, companyMapper, id));
@@ -48,6 +53,8 @@ public class CompanyRepository {
         return Optional.ofNullable(null);
     }
 
+    @Timed
+    @Override
     @Transactional
     public boolean delete(int idCompany) {
         boolean deleted = false;
