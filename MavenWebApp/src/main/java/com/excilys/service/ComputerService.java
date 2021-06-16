@@ -1,6 +1,5 @@
 package com.excilys.service;
 
-import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -8,10 +7,8 @@ import java.util.Optional;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import com.excilys.aop.proxy.TimedInvocationHandler;
 import com.excilys.model.Computer;
 import com.excilys.repository.ComputerRepository;
-import com.excilys.repository.ComputerRepositoryInterface;
 import com.excilys.validator.CustomException;
 
 /**
@@ -22,14 +19,11 @@ import com.excilys.validator.CustomException;
 @Service
 public class ComputerService {
 
-    private ComputerRepositoryInterface computerRepositoryInterface;
+    private ComputerRepository computerRepositoryInterface;
     private static Logger log = Logger.getLogger(ComputerService.class);
 
     public ComputerService(ComputerRepository computerRepository) {
-        ComputerRepositoryInterface computerRepositoryInterface = (ComputerRepositoryInterface) Proxy.newProxyInstance(
-                ComputerRepositoryInterface.class.getClassLoader(), new Class[] { ComputerRepositoryInterface.class },
-                new TimedInvocationHandler(computerRepository));
-        this.computerRepositoryInterface = computerRepositoryInterface;
+        this.computerRepositoryInterface = computerRepository;
     }
 
     public List<Computer> getList() {

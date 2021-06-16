@@ -30,10 +30,10 @@
     <jstl.version>1.2</jstl.version>
     <mockito.version>3.2.4</mockito.version>
     <slf4j-log4j12.version>1.7.25</slf4j-log4j12.version>
-    <spring-context.version>5.3.7</spring-context.version>
-    <spring-webmvc.version>5.3.7</spring-webmvc.version>
-    <spring-test.version>5.3.7</spring-test.version>
-    <spring-jdbc.version>5.3.7</spring-jdbc.version>
+    <spring.version>5.3.7</spring.version>
+    <querydsl.version>4.4.0</querydsl.version>
+    <hibernate-core.version>5.5.2.Final</hibernate-core.version>
+    <javax-annotation.version>1.3.2</javax-annotation.version>
   </properties>
 
   <dependencies>
@@ -98,39 +98,65 @@
 	<dependency>
        <groupId>org.springframework</groupId>
        <artifactId>spring-context</artifactId>
-       <version>${spring-context.version}</version>
+       <version>${spring.version}</version>
     </dependency>
 	<dependency>
 	    <groupId>org.springframework</groupId>
 	    <artifactId>spring-webmvc</artifactId>
-	    <version>${spring-webmvc.version}</version>
+	    <version>${spring.version}</version>
 	</dependency>
     <dependency>
          <groupId>org.springframework</groupId>
          <artifactId>spring-test</artifactId>
-         <version>${spring-test.version}</version>
+         <version>${spring.version}</version>
          <scope>test</scope>
     </dependency>
 	<dependency>
 	    <groupId>org.springframework</groupId>
 	    <artifactId>spring-jdbc</artifactId>
-	    <version>${spring-jdbc.version}</version>
+	    <version>${spring.version}</version>
 	</dependency>
-   	
+	<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate-core.version}</version>
+        </dependency>
+	<dependency>
+        <groupId>com.querydsl</groupId>
+        <artifactId>querydsl-apt</artifactId>
+        <version>${querydsl.version}</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>com.querydsl</groupId>
+        <artifactId>querydsl-jpa</artifactId>
+        <version>${querydsl.version}</version>
+    </dependency>
+    <dependency>
+	    <groupId>javax.annotation</groupId>
+	    <artifactId>javax.annotation-api</artifactId>
+	    <version>${javax-annotation.version}</version>
+	</dependency>
   </dependencies>
 
   <build>
     <finalName>MavenWebApp</finalName>
-    <resources>
-		<resource>
-			<directory>src/main/resources</directory>
-		</resource>
-	</resources>
-	<testResources>
-		<testResource>
-			<directory>src/test/resources</directory>
-		</testResource>
-	</testResources>
+<!--     <resources> -->
+<!-- 		<resource> -->
+<!-- 			<directory>src/main/resources</directory> -->
+<!-- 		</resource> -->
+<!-- 	</resources> -->
+<!-- 	<testResources> -->
+<!-- 		<testResource> -->
+<!-- 			<directory>src/test/resources</directory> -->
+<!-- 		</testResource> -->
+<!-- 	</testResources> -->
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
         <plugin>
@@ -143,8 +169,8 @@
           <version>3.0.2</version>
         </plugin>
         <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.0</version>
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
@@ -172,6 +198,22 @@
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>3.0.0</version>
         </plugin>
+        <plugin>
+		    <groupId>com.mysema.maven</groupId>
+		    <artifactId>apt-maven-plugin</artifactId>
+		    <version>1.1.3</version>
+		    <executions>
+		        <execution>
+		            <goals>
+		                <goal>process</goal>
+		            </goals>
+		        </execution>
+		    </executions>
+		    <configuration>
+                <outputDirectory>target/generated-sources/java</outputDirectory>
+                <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+            </configuration>
+		</plugin>
       </plugins>
     </pluginManagement>
   </build>

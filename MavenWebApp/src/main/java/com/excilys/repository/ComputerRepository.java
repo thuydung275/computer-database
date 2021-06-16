@@ -1,144 +1,143 @@
 package com.excilys.repository;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.excilys.aop.Timed;
-import com.excilys.mapper.ComputerMapper;
 import com.excilys.model.Computer;
+import com.excilys.model.QCompany;
+import com.excilys.model.QComputer;
+import com.querydsl.core.types.Path;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @Repository
-public class ComputerRepository implements ComputerRepositoryInterface {
+public class ComputerRepository {
 
-    private JdbcTemplate jdbcTemplate;
-    private ComputerMapper computerMapper;
+    private JPAQueryFactory queryFactory;
+    private SessionFactory sessionFactory;
+    private EntityManager entityManager;
     private static Logger log = Logger.getLogger(ComputerRepository.class);
 
-    private static final String FIND_BY_ID = "SELECT computer.id, computer.name, computer.introduced, computer.discontinued, computer.company_id, company.name FROM computer LEFT JOIN company ON computer.company_id = company.id WHERE computer.id = ?";
-    private static final String FIND_ALL = "SELECT computer.id, computer.name, computer.introduced, computer.discontinued, computer.company_id, company.name FROM computer LEFT JOIN company ON computer.company_id = company.id ";
-    private static final String CREATE_COMPUTER = "INSERT INTO computer (name, introduced, discontinued, company_id) VALUES (?,?,?,?)";
-    private static final String UPDATE_COMPUTER = "UPDATE computer SET name = ?, introduced = ?, discontinued = ?, company_id = ? WHERE id = ? ";
-    private static final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?";
-
-    public ComputerRepository(JdbcTemplate jdbcTemplate, ComputerMapper computerMapper) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.computerMapper = computerMapper;
+    public ComputerRepository(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+        this.entityManager = sessionFactory.createEntityManager();
+        this.queryFactory = new JPAQueryFactory(this.entityManager);
     }
 
-    @Timed
-    @Override
     public List<Computer> findAll() {
-        try {
-            return this.jdbcTemplate.query(FIND_ALL, computerMapper);
-        } catch (DataAccessException ex) {
-            log.error(ex.getMessage());
-        }
-        return null;
+        return this.queryFactory.selectFrom(QComputer.computer).fetch();
     }
 
-    @Timed
-    @Override
     public List<Computer> findByCriteria(Map<String, String> criteria) {
-        String query = FIND_ALL;
-
+        QComputer computer = QComputer.computer;
+        QCompany company = QCompany.company;
+        JPAQuery<Computer> query = this.queryFactory.selectFrom(computer).leftJoin(computer.company, company);
         if (criteria.containsKey("name") && StringUtils.isNotBlank(criteria.get("name"))) {
-            query += " WHERE computer.name LIKE ? OR company.name LIKE ? ";
+            query = query.where(computer.name.like("%" + criteria.get("name") + "%")
+                    .or(company.name.like("%" + criteria.get("name") + "%")));
         }
         if (criteria.containsKey("order") && StringUtils.isNotBlank(criteria.get("order"))
                 && criteria.containsKey("sort") && StringUtils.isNotBlank(criteria.get("sort"))) {
-            query += " ORDER BY " + criteria.get("sort") + " " + criteria.get("order");
-        }
-        if (criteria.containsKey("limit") && StringUtils.isNotBlank(criteria.get("limit"))) {
-            query += " LIMIT " + criteria.get("limit");
-        }
-        query += ";";
-        try {
-            if (criteria.containsKey("name") && StringUtils.isNotBlank(criteria.get("name"))) {
-                return this.jdbcTemplate.query(query, computerMapper, "%" + criteria.get("name") + "%",
-                        "%" + criteria.get("name") + "%");
-            } else {
-                return this.jdbcTemplate.query(query, computerMapper);
+            String order = criteria.get("order");
+            String sort = criteria.get("sort");
+            if (order.equals("ASC")) {
+                switch (sort) {
+                case "computerName":
+                    query = query.orderBy(computer.name.asc());
+                    break;
+                case "introduced":
+                    query = query.orderBy(computer.introduced.asc());
+                    break;
+                case "discontinued":
+                    query = query.orderBy(computer.discontinued.asc());
+                    break;
+                case "companyName":
+                    query = query.orderBy(computer.company.name.asc());
+                    break;
+                default:
+                    query = query.orderBy(computer.id.asc());
+                    break;
+                }
+            } else if (order.equals("DESC")) {
+                switch (sort) {
+                case "computerName":
+                    query = query.orderBy(computer.name.desc());
+                    break;
+                case "introduced":
+                    query = query.orderBy(computer.introduced.desc());
+                    break;
+                case "discontinued":
+                    query = query.orderBy(computer.discontinued.desc());
+                    break;
+                case "companyName":
+                    query = query.orderBy(computer.company.name.desc());
+                    break;
+                default:
+                    query = query.orderBy(computer.id.desc());
+                    break;
+                }
             }
-        } catch (DataAccessException ex) {
-            log.error(ex.getMessage());
+
         }
-        return null;
+        if (criteria.containsKey("limit") && StringUtils.isNumeric(criteria.get("limit"))
+                && criteria.containsKey("offset") && StringUtils.isNumeric(criteria.get("offset"))) {
+            query = query.limit(Long.parseLong(criteria.get("limit"))).offset(Long.parseLong(criteria.get("offset")));
+        }
+        return query.fetch();
     }
 
-    @Timed
-    @Override
-    public Optional<Computer> findById(int id) {
-        try {
-            return Optional.ofNullable(this.jdbcTemplate.queryForObject(FIND_BY_ID, computerMapper, id));
-        } catch (DataAccessException ex) {
-            log.error(ex.getMessage());
-        }
-        return Optional.ofNullable(null);
+    public Optional<Computer> findById(Integer id) {
+        QComputer computer = QComputer.computer;
+        return Optional.ofNullable(this.queryFactory.selectFrom(computer).where(computer.id.eq(id)).fetchOne());
     }
 
-    @Timed
-    @Override
+    @Transactional
     public Computer create(Computer computer) {
-        Date introduced = computer.getIntroduced() != null ? java.sql.Date.valueOf(computer.getIntroduced()) : null;
-        Date discontinued = computer.getDiscontinued() != null ? java.sql.Date.valueOf(computer.getDiscontinued())
-                : null;
-        Integer companyId = computer.getCompany() != null ? computer.getCompany().getId() : null;
-        try {
-            KeyHolder keyHolder = new GeneratedKeyHolder();
+        Session session;
 
-            this.jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(CREATE_COMPUTER, Statement.RETURN_GENERATED_KEYS);
-                int i = 1;
-                ps.setString(i++, computer.getName());
-                ps.setDate(i++, introduced);
-                ps.setDate(i++, discontinued);
-                ps.setObject(i++, companyId);
-                return ps;
-            }, keyHolder);
-            computer.setId(keyHolder.getKey().intValue());
-        } catch (DataAccessException ex) {
-            log.error(ex.getMessage());
+        try {
+            session = sessionFactory.getCurrentSession();
+        } catch (HibernateException e) {
+            session = sessionFactory.openSession();
         }
+        int id = (Integer) session.save(computer);
+        computer.setId(id);
         return computer;
     }
 
-    @Timed
-    @Override
+    @Transactional
     public Computer update(Computer computer) {
-        Integer companyId = computer.getCompany() != null ? computer.getCompany().getId() : null;
-        Date introduced = computer.getIntroduced() != null ? java.sql.Date.valueOf(computer.getIntroduced()) : null;
-        Date discontinued = computer.getDiscontinued() != null ? java.sql.Date.valueOf(computer.getDiscontinued())
-                : null;
-        try {
-            this.jdbcTemplate.update(UPDATE_COMPUTER, computer.getName(), introduced, discontinued, companyId,
-                    computer.getId());
-        } catch (DataAccessException ex) {
-            log.error(ex.getMessage());
-        }
+        QComputer q = QComputer.computer;
+        List<? extends Path<?>> paths = new ArrayList<>(Arrays.asList(q.name, q.introduced, q.discontinued, q.company));
+        List<?> values = new ArrayList<>(Arrays.asList(computer.getName(), computer.getIntroduced(),
+                computer.getDiscontinued(), computer.getCompany()));
+
+        this.entityManager.getTransaction().begin();
+        this.queryFactory.update(q).where(q.id.eq(computer.getId())).set(paths, values).execute();
+        this.entityManager.getTransaction().commit();
         return computer;
     }
 
-    @Timed
-    @Override
+    @Transactional
     public boolean delete(Integer id) {
-        try {
-            return this.jdbcTemplate.update(DELETE_COMPUTER, id) == 1;
-        } catch (DataAccessException ex) {
-            log.error(ex.getMessage());
-        }
-        return false;
+        QComputer computer = QComputer.computer;
+        this.entityManager.getTransaction().begin();
+        boolean deleted = this.queryFactory.delete(computer).where(computer.id.eq(id)).execute() == 1;
+        this.entityManager.getTransaction().commit();
+        return deleted;
     }
 
 }
