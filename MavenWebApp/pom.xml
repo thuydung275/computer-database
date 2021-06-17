@@ -42,7 +42,7 @@
 	    <artifactId>javax.servlet-api</artifactId>
 	    <version>${servlet-api.version}</version>
 	    <scope>provided</scope>
-	</dependency>
+	  </dependency>
     <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>jstl</artifactId>
@@ -69,12 +69,12 @@
   		<groupId>org.mockito</groupId>
   		<artifactId>mockito-core</artifactId>
   		<version>${mockito.version}</version>
-	</dependency>
-	<dependency>
+	  </dependency>
+	  <dependency>
 	    <groupId>com.h2database</groupId>
 	    <artifactId>h2</artifactId>
 	    <version>${h2.version}</version>
-	</dependency>
+	  </dependency>
    	<dependency>
        <groupId>org.slf4j</groupId>
        <artifactId>slf4j-log4j12</artifactId>
@@ -84,65 +84,65 @@
    	    <groupId>org.mybatis</groupId>
         <artifactId>mybatis</artifactId>
 	    <version>${mybatis.version}</version>
-	</dependency>
-	<dependency>
+	  </dependency>
+	  <dependency>
 	    <groupId>org.apache.commons</groupId>
 	    <artifactId>commons-lang3</artifactId>
 	    <version>${commons-lang3.version}</version>
-	</dependency>
-	<dependency>
+	  </dependency>
+	  <dependency>
 	    <groupId>com.zaxxer</groupId>
 	    <artifactId>HikariCP</artifactId>
 	    <version>${HikariCP.version}</version>
-	</dependency>
-	<dependency>
-       <groupId>org.springframework</groupId>
-       <artifactId>spring-context</artifactId>
-       <version>${spring.version}</version>
+	  </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>${spring.version}</version>
     </dependency>
-	<dependency>
+	  <dependency>
 	    <groupId>org.springframework</groupId>
 	    <artifactId>spring-webmvc</artifactId>
 	    <version>${spring.version}</version>
-	</dependency>
+	  </dependency>
     <dependency>
-         <groupId>org.springframework</groupId>
-         <artifactId>spring-test</artifactId>
-         <version>${spring.version}</version>
-         <scope>test</scope>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <version>${spring.version}</version>
+      <scope>test</scope>
     </dependency>
-	<dependency>
+	  <dependency>
 	    <groupId>org.springframework</groupId>
 	    <artifactId>spring-jdbc</artifactId>
 	    <version>${spring.version}</version>
-	</dependency>
-	<dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-orm</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
+	  </dependency>
+	  <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-orm</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
 
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>${hibernate-core.version}</version>
-        </dependency>
-	<dependency>
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-core</artifactId>
+        <version>${hibernate-core.version}</version>
+      </dependency>
+	    <dependency>
         <groupId>com.querydsl</groupId>
         <artifactId>querydsl-apt</artifactId>
         <version>${querydsl.version}</version>
         <scope>provided</scope>
-    </dependency>
-    <dependency>
+      </dependency>
+      <dependency>
         <groupId>com.querydsl</groupId>
         <artifactId>querydsl-jpa</artifactId>
         <version>${querydsl.version}</version>
-    </dependency>
-    <dependency>
-	    <groupId>javax.annotation</groupId>
-	    <artifactId>javax.annotation-api</artifactId>
-	    <version>${javax-annotation.version}</version>
-	</dependency>
+      </dependency>
+      <dependency>
+        <groupId>javax.annotation</groupId>
+        <artifactId>javax.annotation-api</artifactId>
+        <version>${javax-annotation.version}</version>
+	    </dependency>
   </dependencies>
 
   <build>
