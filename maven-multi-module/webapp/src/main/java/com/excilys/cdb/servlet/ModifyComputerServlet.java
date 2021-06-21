@@ -1,6 +1,9 @@
 package com.excilys.cdb.servlet;
 
+import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +48,8 @@ public class ModifyComputerServlet {
     }
 
     @GetMapping
-    protected ModelAndView getView(@RequestParam(value = "id", required = false) String computerId) {
+    protected ModelAndView getView(@RequestParam(value = "id", required = false) String computerId,
+            Principal principal) {
         ComputerDTO computerDTO = new ComputerDTO.ComputerDTOBuilder().build();
         if (computerId != null && StringUtils.isNumeric(computerId)) {
             computerDTO = computerMapper.mapFromComputerToDTO(computerService.findById(Integer.parseInt(computerId)));
@@ -53,8 +57,11 @@ public class ModifyComputerServlet {
         ModelAndView modelAndView = new ModelAndView("modifyComputer", "computer", computerDTO);
         List<CompanyDTO> companyDTOList = companyService.getList().stream()
                 .map(c -> companyMapper.mapFromCompanyToDTO(c)).collect(Collectors.toList());
-        modelAndView.addObject("companyList", companyDTOList);
-        return modelAndView;
+
+        Map<String, Object> attributeList = new HashMap<>();
+        attributeList.put("companyList", companyDTOList);
+        attributeList.put("username", principal.getName());
+        return modelAndView.addAllObjects(attributeList);
     }
 
     @PostMapping

@@ -11,10 +11,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -31,6 +33,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
+import com.excilys.cdb.service.CustomUserDetailsService;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -117,7 +120,7 @@ public class WebConfig extends WebSecurityConfigurerAdapter implements WebMvcCon
     @Bean
     public LocalSessionFactoryBean sessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(getDataSource());
+        sessionFactory.setDataSource(dataSource());
         sessionFactory.setPackagesToScan("com.excilys.cdb.model");
         sessionFactory.setHibernateProperties(hibernateProperties());
 
@@ -125,7 +128,7 @@ public class WebConfig extends WebSecurityConfigurerAdapter implements WebMvcCon
     }
 
     @Bean
-    public HikariDataSource getDataSource() {
+    public HikariDataSource dataSource() {
         return new HikariDataSource(new HikariConfig("/db.properties"));
     }
 
@@ -144,10 +147,26 @@ public class WebConfig extends WebSecurityConfigurerAdapter implements WebMvcCon
     @Override
     @Autowired
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication().withUser("user1@gmail.com").password(passwordEncoder().encode("user1Pass"))
-                .roles("USER").and().withUser("user2@gmail.com").password(passwordEncoder().encode("user2Pass"))
-                .roles("USER").and().withUser("admin@gmail.com").password(passwordEncoder().encode("adminPass"))
-                .roles("ADMIN");
+        auth.authenticationProvider(authenticationProvider());
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService());
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
+
+    @Override
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return new CustomUserDetailsService();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     /**
@@ -155,15 +174,8 @@ public class WebConfig extends WebSecurityConfigurerAdapter implements WebMvcCon
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/computer/edit", "/computer/delete").hasRole("ADMIN")
-                .antMatchers("/computer/list").authenticated().antMatchers("/login").permitAll().and().formLogin()
+        http.authorizeRequests().mvcMatchers("/computer/edit", "/computer/delete").hasRole("ADMIN")
+                .mvcMatchers("/computer/list").authenticated().mvcMatchers("/login").permitAll().and().formLogin()
                 .defaultSuccessUrl("/computer/list", false).and().logout();
-        ;
-
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

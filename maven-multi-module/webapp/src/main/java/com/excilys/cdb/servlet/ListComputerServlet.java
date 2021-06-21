@@ -1,5 +1,6 @@
 package com.excilys.cdb.servlet;
 
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +39,7 @@ public class ListComputerServlet {
             @RequestParam(value = "perPage", required = false) String perPage,
             @RequestParam(value = "search", required = false) String search,
             @RequestParam(value = "order", required = false) String order,
-            @RequestParam(value = "sort", required = false) String sort) {
+            @RequestParam(value = "sort", required = false) String sort, Principal principal) {
         Map<String, String> criteria = new HashMap<>();
         criteria.put("pageNumber", pageNumber);
         criteria.put("perPage", perPage);
@@ -54,6 +55,7 @@ public class ListComputerServlet {
         attributeList.put("maxTotalPage", this.getLastPagePerLimit(criteria));
         attributeList.put("order", order);
         attributeList.put("sort", sort);
+        attributeList.put("username", principal.getName());
         if (StringUtils.isNotBlank(search)) {
             attributeList.put("search", search.trim());
         }
