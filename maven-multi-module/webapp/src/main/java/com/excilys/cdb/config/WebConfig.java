@@ -1,8 +1,9 @@
-package com.excilys.cdb;
+package com.excilys.cdb.config;
 
 import java.util.Locale;
 import java.util.Properties;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -10,6 +11,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.LocaleResolver;
@@ -29,10 +36,11 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 @EnableWebMvc
+@EnableWebSecurity
 @EnableTransactionManagement
-@ComponentScan(basePackages = { "com.excilys.cdb.servlet", "com.excilys.cdb.validator", "com.excilys.cdb.mapper",
-        "com.excilys.cdb.service", "com.excilys.cdb.repository" })
-public class WebConfig implements WebMvcConfigurer {
+@ComponentScan(basePackages = { "com.excilys.cdb.servlet", "com.excilys.cdb.config", "com.excilys.cdb.validator",
+        "com.excilys.cdb.mapper", "com.excilys.cdb.service", "com.excilys.cdb.repository" })
+public class WebConfig extends WebSecurityConfigurerAdapter implements WebMvcConfigurer {
 
     /**
      * responsible for view rendering
@@ -125,5 +133,37 @@ public class WebConfig implements WebMvcConfigurer {
         Properties hibernateProperties = new Properties();
         hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
         return hibernateProperties;
+    }
+
+    /**
+     * Set config on the auth object for authentication
+     *
+     * @param auth
+     * @throws Exception
+     */
+    @Override
+    @Autowired
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.inMemoryAuthentication().withUser("user1@gmail.com").password(passwordEncoder().encode("user1Pass"))
+                .roles("USER").and().withUser("user2@gmail.com").password(passwordEncoder().encode("user2Pass"))
+                .roles("USER").and().withUser("admin@gmail.com").password(passwordEncoder().encode("adminPass"))
+                .roles("ADMIN");
+    }
+
+    /**
+     * for authorization
+     */
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests().antMatchers("/computer/edit", "/computer/delete").hasRole("ADMIN")
+                .antMatchers("/computer/list").authenticated().antMatchers("/login").permitAll().and().formLogin()
+                .defaultSuccessUrl("/computer/list", false).and().logout();
+        ;
+
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
