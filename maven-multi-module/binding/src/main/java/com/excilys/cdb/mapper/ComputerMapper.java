@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Component;
 
 import com.excilys.cdb.dto.ComputerDTO;
+import com.excilys.cdb.dto.ComputerDTOBuilder;
 import com.excilys.cdb.model.Company;
 import com.excilys.cdb.model.Computer;
 
@@ -35,7 +36,7 @@ public class ComputerMapper {
     }
 
     public ComputerDTO mapFromComputerToDTO(Computer computer) {
-        ComputerDTO comDTO = new ComputerDTO.ComputerDTOBuilder().build();
+        ComputerDTO comDTO = new ComputerDTOBuilder().build();
         if (computer.getId() != null) {
             comDTO.setId(computer.getId().toString());
         }

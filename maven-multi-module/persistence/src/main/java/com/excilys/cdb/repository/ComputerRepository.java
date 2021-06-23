@@ -40,12 +40,13 @@ public class ComputerRepository {
     }
 
     public List<Computer> findByCriteria(Map<String, String> criteria) {
+        System.out.println("==============IN=============");
         QComputer computer = QComputer.computer;
         QCompany company = QCompany.company;
         JPAQuery<Computer> query = this.queryFactory.selectFrom(computer).leftJoin(computer.company, company);
-        if (criteria.containsKey("name") && StringUtils.isNotBlank(criteria.get("name"))) {
-            query = query.where(computer.name.like("%" + criteria.get("name") + "%")
-                    .or(company.name.like("%" + criteria.get("name") + "%")));
+        if (criteria.containsKey("search") && StringUtils.isNotBlank(criteria.get("search"))) {
+            query = query.where(computer.name.like("%" + criteria.get("search") + "%")
+                    .or(company.name.like("%" + criteria.get("search") + "%")));
         }
         if (criteria.containsKey("order") && StringUtils.isNotBlank(criteria.get("order"))
                 && criteria.containsKey("sort") && StringUtils.isNotBlank(criteria.get("sort"))) {

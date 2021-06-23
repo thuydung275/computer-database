@@ -48,7 +48,13 @@ public class ComputerService {
             throw new Exception("Computer does not exist in our database");
         }
         return computerRepositoryInterface.update(computer);
+    }
 
+    public Computer createOrUpdate(Computer computer) throws Exception {
+        if (computer.getId() != null) {
+            return this.update(computer);
+        }
+        return this.create(computer);
     }
 
     public boolean delete(Integer id) {

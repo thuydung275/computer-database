@@ -11,14 +11,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.LocaleResolver;
@@ -33,6 +35,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
+import com.excilys.cdb.filter.JwtRequestFilter;
 import com.excilys.cdb.service.CustomUserDetailsService;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -41,7 +44,7 @@ import com.zaxxer.hikari.HikariDataSource;
 @EnableWebMvc
 @EnableWebSecurity
 @EnableTransactionManagement
-@ComponentScan(basePackages = { "com.excilys.cdb.servlet", "com.excilys.cdb.config", "com.excilys.cdb.validator",
+@ComponentScan(basePackages = { "com.excilys.cdb.controller", "com.excilys.cdb.config", "com.excilys.cdb.validator",
         "com.excilys.cdb.mapper", "com.excilys.cdb.service", "com.excilys.cdb.repository" })
 public class WebConfig extends WebSecurityConfigurerAdapter implements WebMvcConfigurer {
 
@@ -147,15 +150,7 @@ public class WebConfig extends WebSecurityConfigurerAdapter implements WebMvcCon
     @Override
     @Autowired
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(authenticationProvider());
-    }
-
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService());
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
+        auth.userDetailsService(userDetailsService());
     }
 
     @Override
@@ -169,13 +164,28 @@ public class WebConfig extends WebSecurityConfigurerAdapter implements WebMvcCon
         return new BCryptPasswordEncoder();
     }
 
+    @Override
+    @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
+    @Bean
+    JwtRequestFilter jwtRequestFilter() {
+        return new JwtRequestFilter();
+    }
+
     /**
      * for authorization
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().mvcMatchers("/computer/edit", "/computer/delete").hasRole("ADMIN")
-                .mvcMatchers("/computer/list").authenticated().mvcMatchers("/login").permitAll().and().formLogin()
-                .defaultSuccessUrl("/computer/list", false).and().logout();
+        http.csrf().disable().authorizeRequests() //
+                .mvcMatchers("/computer/edit/*", "/computer/save", "/computer/delete/**", "/company/**")
+                .hasRole("ADMIN") //
+                .mvcMatchers("/computer/list").authenticated() //
+                .anyRequest().permitAll() //
+                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.addFilterBefore(jwtRequestFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 }
